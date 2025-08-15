@@ -29,3 +29,9 @@ Route::middleware('auth')->group(function () {
         Route::patch('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     });
 });
+
+
+// static routes
+Route::get('/components', function () {
+    return view('pages.components');
+})->name('components');
