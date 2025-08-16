@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title' , 'Fronx Dashbaord')</title>
     @include('includes.head')
+    @include('includes.script')
+    @include('includes.head')
 </head>
 
 <body class="bg-gray-100">

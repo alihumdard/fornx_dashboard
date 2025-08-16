@@ -32,11 +32,55 @@ Route::middleware('auth')->group(function () {
 
 
 // static routes
-Route::get('/components', function () {
-    return view('pages.components');
-})->name('components');
 
 Route::get('/tansections', function () {
-    return view('pages.tansections');
+    return view('pages.Transactions_tab.tansections');
 })->name('tansections');
 
+Route::get('/add_transaction', function () {
+    return view('pages.Transactions_tab.add_transaction');
+})->name('add_transaction');
+
+Route::get('/user_team', function () {
+    return view('pages.user_team');
+})->name('user_team');
+
+Route::get('/all_users', function () {
+    return view('pages.users_tab.all_users');
+})->name('all_users');
+
+Route::get('/add_new_user', function () {
+    return view('pages.users_tab.add_new_user');
+})->name('add_new_user');
+
+Route::get('/create_project', function () {
+    return view('pages.create_project');
+})->name('create_project');
+
+Route::get('/user_profile', function () {
+    return view('pages.users_tab.user_profile');
+})->name('user_profile');
+
+Route::get('/all_clients', function () {
+    return view('pages.all_clients');
+})->name('all_clients');
+
+Route::get('/project_progress_1', function () {
+    return view('pages.project_progress.project_progress_1');
+})->name('project_progress_1');
+
+Route::get('/project_progress_2', function () {
+    return view('pages.project_progress.project_progress_2');
+})->name('project_progress_2');
+
+Route::get('/project_progress_3', function () {
+    return view('pages.project_progress.project_progress_3');
+})->name('project_progress_3');
+
+Route::get('/chat_module', function () {
+    return view('pages.chat_module');
+})->name('chat_module');
+
+Route::get('/invoice', function () {
+    return view('pages.invoice');
+})->name('invoice');
