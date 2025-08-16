@@ -35,3 +35,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/components', function () {
     return view('pages.components');
 })->name('components');
+
+Route::get('/tansections', function () {
+    return view('pages.tansections');
+})->name('tansections');
+

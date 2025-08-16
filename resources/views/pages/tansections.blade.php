@@ -1,12 +1,19 @@
 @extends('layouts.main')
-@section('title', 'Components')
+@section('title', 'Tansections')
 
 @section('content')
-<h1>dfjsadkl</h1>
+<h1 class="text-2xl font-bold mb-4">Tansections Page</h1>
+
+
+
+
+
+
+
 @endsection
 
 @push('scripts')
 <script>
-
+    
 </script>
 @endpush

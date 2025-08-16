@@ -1,12 +1,13 @@
 @extends('layouts.main')
-@section('title', 'Components')
+@section('title', 'Dashbaord')
 
 @section('content')
-<h1>dfjsadkl</h1>
-@endsection
+<!-- code staing  -->
+
+
+endsection
 
 @push('scripts')
 <script>
-
 </script>
 @endpush

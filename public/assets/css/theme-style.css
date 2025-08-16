@@ -36,3 +36,48 @@
 .theme-text-primary {
   color: var(--primary-color);
 }
+
+
+/* Custom styles for responsive behavior */
+.sidebar-transition {
+  transition: transform 0.3s ease-in-out;
+}
+
+@media (max-width: 1023px) {
+  .sidebar-mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 50;
+    transform: translateX(-100%);
+  }
+
+  .sidebar-mobile.active {
+    transform: translateX(0);
+  }
+}
+
+/* For horizontal scrolling on small screens */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
