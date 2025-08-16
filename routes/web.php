@@ -1,42 +1,42 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\dashboard\RoleController;
-use App\Http\Controllers\dashboard\UserController;
-use App\Http\Controllers\dashboard\AccessController;
-use App\Http\Controllers\dashboard\CountryController;
-use App\Http\Controllers\dashboard\ProjectController;
-use App\Http\Controllers\dashboard\PlatformController;
-use App\Http\Controllers\dashboard\DashboardController;
-use App\Http\Controllers\dashboard\TechnologyController;
 
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
-// roles
-Route::resource('roles', RoleController::class);
-// access control
-Route::resource('access', AccessController::class);
-// users
-Route::resource('users', UserController::class);
-// user status update
-Route::post('/users/{id}/update-status', [UserController::class, 'updateStatus']);
-Route::post('/user/upload-photo', [UserController::class, 'uploadPhoto'])->name('user.upload-photo');
+Route::get('/', [AuthController::class, 'index']);
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('register', [AuthController::class, 'register']);
+Route::match(['get','post'],'logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('verify-otp', [ForgotPasswordController::class, 'showOtpForm'])->name('password.otp.form');
+Route::post('verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('password.otp.verify');
+Route::get('reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset.form');
+Route::post('reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
 
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-
-// platforms
-Route::resource('platforms', PlatformController::class);
-// technologies
-Route::resource('technologies', TechnologyController::class);
-// projects
-Route::resource('projects', ProjectController::class);
-Route::post('/update-project-status', [ProjectController::class, 'updateProjectStatus']);
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::patch('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
+    });
+});
 
 
-Route::get('/countries', [CountryController::class, 'index']);
-Route::get('/countries/{id}', [CountryController::class, 'show']);
-Route::get('/countries/continent/{continent}', [CountryController::class, 'byContinent']);
-Route::get('/countries/currency/{currencyCode}', [CountryController::class, 'byCurrency']);
+// static routes
+Route::get('/components', function () {
+    return view('pages.components');
+})->name('components');
 
-Route::post('/countries', [CountryController::class, 'store']);
-Route::put('/countries/{id}', [CountryController::class, 'update']);
-Route::delete('/countries/{id}', [CountryController::class, 'destroy']);
+Route::get('/tansections', function () {
+    return view('pages.tansections');
+})->name('tansections');
+
