@@ -42,7 +42,7 @@ Route::get('/add_transaction', function () {
 })->name('add_transaction');
 
 Route::get('/user_team', function () {
-    return view('pages.user_team');
+    return view('pages.users_tab.user_team');
 })->name('user_team');
 
 Route::get('/all_users', function () {
@@ -81,6 +81,34 @@ Route::get('/chat_module', function () {
     return view('pages.chat_module');
 })->name('chat_module');
 
-Route::get('/invoice', function () {
-    return view('pages.invoice');
-})->name('invoice');
+Route::get('/invoice_1', function () {
+    return view('pages.invoice.invoice_1');
+})->name('invoice_1');
+
+Route::get('/invoice_2', function () {
+    return view('pages.invoice.invoice_2');
+})->name('invoice_2');
+
+Route::get('/invoice_3', function () {
+    return view('pages.invoice.invoice_3');
+})->name('invoice_3');
+
+Route::get('/invoice_template', function () {
+    return view('pages.invoice.invoice_template');
+})->name('invoice_template');
+
+Route::get('/invoice_information', function () {
+    return view('pages.invoice.invoice_information');
+})->name('invoice_information');
+
+Route::get('/invoice_client', function () {
+    return view('pages.invoice.invoice_client');
+})->name('invoice_client');
+
+Route::get('/all_invoice_users', function () {
+    return view('pages.invoice.all_invoice_users');
+})->name('all_invoice_users');
+
+Route::get('/payment', function () {
+    return view('pages.payment');
+})->name('payment');
