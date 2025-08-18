@@ -23,9 +23,6 @@
                     <path d="M9.5 17a2.5 2.5 0 0 0 5 0" />
                 </svg>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 lg:w-6 lg:h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405M4 4h16v12H4z" />
-            </svg>
             <div class="flex items-center gap-2">
                 <img src="https://via.placeholder.com/40" class="rounded-full w-8 h-8 lg:w-10 lg:h-10" alt="">
                 <div class="hidden md:block">

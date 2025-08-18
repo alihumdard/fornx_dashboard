@@ -3,7 +3,7 @@
 
 @section('content')
 
-endsection
+@endsection
 
 @push('scripts')
 <script>
