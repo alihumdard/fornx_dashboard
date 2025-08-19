@@ -339,8 +339,8 @@
 
             <div style="display: flex; flex-direction: column; padding-top: 10px; color: #666;">
                 <span>Business address</span>
-                <span>AB0234-01</span>
-            
+                <span>City, State ,IN 000 000</span>
+                <span>TAX ID 00XXX1234XX</span>
             </div>
         </div>
 
