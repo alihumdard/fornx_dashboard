@@ -112,3 +112,7 @@ Route::get('/all_invoice_users', function () {
 Route::get('/payment', function () {
     return view('pages.payment');
 })->name('payment');
+
+Route::get('/jobs', function () {
+    return view('pages.jobs');
+})->name('jobs');
