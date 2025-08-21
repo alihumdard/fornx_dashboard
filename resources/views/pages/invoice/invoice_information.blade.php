@@ -2,7 +2,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<div class="px-4 space-y-8">
+<div class="px-4 space-y-8  mt-12 sm:mt-0">
     
     <!-- Profile Header -->
     <div>

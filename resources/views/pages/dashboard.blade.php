@@ -3,7 +3,7 @@
 
 @section('content')
 <!-- Overview Cards -->
-<div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto mt-12 sm:mt-0">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 lg:mb-8">
         <h1 class="text-2xl lg:text-3xl text-gray-900 mb-4 md:mb-0">overview</h1>
         <div>
