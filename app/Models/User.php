@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <-- Import this
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -74,5 +74,13 @@ class User extends Authenticatable
     public function services(): BelongsToMany   
     {
         return $this->belongsToMany(Service::class, 'service_user', 'user_id', 'service_id');
+    }
+
+    /**
+     * The teams that the user belongs to.
+     */
+    public function teams(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class);
     }
 }

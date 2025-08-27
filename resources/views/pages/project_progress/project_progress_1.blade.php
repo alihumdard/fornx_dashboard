@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', 'Dashbaord')
+@section('title', 'Project Progress')
 
 @section('content')
 
@@ -15,43 +15,47 @@
         <!-- Project Info -->
         <div class="flex flex-col gap-2 mb-6">
             <p>Project Name:</p>
-            <h2 class="text-xl font-semibold">Website builder development</h2>
-            <span class="bg-green-100 text-green-700 w-24 px-3 py-1 rounded-full text-sm font-medium">On going</span>
+            <h2 class="text-xl font-semibold">{{ $project->name }}</h2>
+            <span class="bg-green-100 text-green-700 w-24 px-3 py-1 rounded-full text-sm font-medium">{{ $project->status }}</span>
         </div>
 
         <!-- Dates -->
         <div class="flex gap-10 mb-6">
             <div>
                 <p class="text-sm text-gray-500">Start Date</p>
-                <p class="font-medium">25/11/2022</p>
+                <p class="font-medium">{{ \Carbon\Carbon::parse($project->start_date)->format('d/m/Y') }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500">End Date</p>
-                <p class="font-medium">25/11/2022</p>
+                <p class="font-medium">{{ \Carbon\Carbon::parse($project->end_date)->format('d/m/Y') }}</p>
             </div>
         </div>
 
         <div class="pb-5">
             <p>website:</p>
-            <p class="text-indigo-600">www.websiteurl.com</p>
+            <p class="text-indigo-600">{{ $project->reference_website ?? 'N/A' }}</p>
         </div>
 
         <!-- Progress -->
         <div class="mb-8">
             <div class="flex justify-between mb-2">
                 <span class="font-medium">Progress</span>
-                <span class="font-semibold text-indigo-600">75%</span>
+                    <span class="font-semibold text-indigo-600">
+                        {{ isset($project->progress) && is_numeric($project->progress) ? intval($project->progress) : 0 }}%
+                    </span>
             </div>
             <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div class="h-2 bg-indigo-600 rounded-full" style="width:75%"></div>
+                    <div class="h-2 bg-indigo-600 rounded-full" style="width: {{ isset($project->progress) && is_numeric($project->progress) ? min(max(intval($project->progress),0),100) : 0 }}%"></div>
             </div>
-            <p class="text-right text-sm text-gray-500 mt-2">2 days remaining</p>
+            <p class="text-right text-sm text-gray-500 mt-2">
+                {{ \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($project->end_date), false) }} days remaining
+            </p>
         </div>
 
         <!-- Website URL -->
         <div class="mb-6">
             <h3 class="font-semibold mb-3">Website URL</h3>
-            <input type="text" value="www.websiteurl.com" readonly
+            <input type="text" value="{{ $project->reference_website ?? '' }}" readonly
                 class="w-full px-4 py-2 border rounded-md text-sm bg-gray-50 focus:outline-none">
         </div>
 
@@ -86,10 +90,7 @@
         <div class="mb-5">
             <h3 class="font-semibold mb-3">About Project</h3>
             <div class="bg-gray-50 p-4 rounded-md text-sm leading-relaxed">
-                This project involves the development of a comprehensive website builder that allows users to create
-                professional websites without coding knowledge. The platform will feature drag-and-drop functionality,
-                customizable templates, and responsive design options. The project is currently in the development phase
-                with 75% completion and is expected to be finalized within the next 2 days.
+                {{ $project->description ?? 'No description available.' }}
             </div>
         </div>
 
@@ -97,38 +98,3 @@
 </div>
 
 @endsection
-
-@push('scripts')
-<!-- Notification Script -->
-<script>
-const saveBtn = document.querySelector('.bg-indigo-600');
-const cancelBtn = document.querySelector('.bg-gray-100');
-
-saveBtn.addEventListener('click', () => {
-    const login = document.querySelector('input[placeholder="Enter login"]').value;
-    const password = document.querySelector('input[placeholder="Enter password"]').value;
-
-    showNotification(login && password ? 'Credentials saved successfully!' :
-        'Please fill in all credential fields!', login && password);
-});
-
-cancelBtn.addEventListener('click', () => {
-    document.querySelector('input[placeholder="Enter login"]').value = '';
-    document.querySelector('input[placeholder="Enter password"]').value = '';
-});
-
-function showNotification(message, success = true) {
-    const notification = document.createElement('div');
-    notification.className =
-        `fixed top-5 right-5 px-5 py-3 rounded-md shadow-lg text-white ${success ? 'bg-green-600' : 'bg-red-500'}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.classList.add('opacity-0', 'transition', 'duration-500');
-        setTimeout(() => notification.remove(), 500);
-    }, 3000);
-}
-</script>
-
-@endpush
