@@ -1,5 +1,6 @@
 @extends('layouts.main')
-@section('title', 'Dashboard')
+@section('title', 'Create Project')
+
 @section('content')
 <style>
 /* Custom styles to match the exact design */
@@ -86,136 +87,114 @@
 <div class="bg-white rounded-lg shadow-md w-full p-4 md:p-6">
     <!-- Title -->
     <h1 class="text-xl font-semibold text-gray-800 mb-4 md:mb-6">Create Project</h1>
+    
+    @if ($errors->any())
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <!-- Form Fields -->
-    <form id="projectForm" class="space-y-4 md:space-y-6">
+    <form id="projectForm" action="{{ route('projects.store') }}" method="POST" class="space-y-4 md:space-y-6">
+        @csrf
         <!-- Row 1 -->
         <div class="flex flex-col md:flex-row gap-4 md:gap-6">
             <div class="flex-1">
-                <label for="projectName" class="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
-                <input type="text" id="projectName" name="projectName"
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                <input type="text" id="name" name="name"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter project name">
+                    placeholder="Enter project name" value="{{ old('name') }}" required>
             </div>
             <div class="flex-1">
-                <label for="clientName" class="block text-sm font-medium text-gray-700 mb-1">Client Name</label>
-                <input type="text" id="clientName" name="clientName"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter client name">
+                <label for="client_id" class="block text-sm font-medium text-gray-700 mb-1">Client Name</label>
+                 <select id="client_id" name="client_id"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                    <option value="">Select a client</option>
+                    @foreach($clients as $client)
+                        <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>{{ $client->name }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
         <!-- Row 2 -->
         <div class="flex flex-col md:flex-row gap-4 md:gap-6">
             <div class="flex-1">
                 <label for="country" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                <div class="relative">
-                    <select id="country" name="country"
-                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none dropdown-open">
-                        <option value="pakistan" selected>Pakistan</option>
-                        <option value="usa">United States</option>
-                        <option value="uk">United Kingdom</option>
-                        <option value="canada">Canada</option>
-                        <option value="australia">Australia</option>
-                        <option value="germany">Germany</option>
-                        <option value="france">France</option>
-                        <option value="japan">Japan</option>
-                        <option value="other">Other</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                </div>
+                <input type="text" id="country" name="country"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Enter country" value="{{ old('country') }}" required>
             </div>
             <div class="flex-1">
                 <label for="platform" class="block text-sm font-medium text-gray-700 mb-1">Platform</label>
-                <div class="relative">
-                    <select id="platform" name="platform"
-                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none dropdown-open">
-                        <option value="fiver" selected>Fiver</option>
-                        <option value="upwork">Upwork</option>
-                        <option value="freelancer">Freelancer</option>
-                        <option value="guru">Guru</option>
-                        <option value="peopleperhour">PeoplePerHour</option>
-                        <option value="toptal">Toptal</option>
-                        <option value="direct">Direct Client</option>
-                        <option value="other">Other</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                </div>
+                <input type="text" id="platform" name="platform"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="e.g., Fiverr, Upwork" value="{{ old('platform') }}" required>
             </div>
         </div>
         <!-- Row 3 -->
         <div class="flex flex-col md:flex-row gap-4 md:gap-6">
             <div class="flex-1">
                 <label for="priority" class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                <div class="relative">
-                    <select id="priority" name="priority"
-                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none">
-                        <option value="high">High</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="low">Low</option>
-                    </select>
-                </div>
+                <select id="priority" name="priority"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none">
+                    <option value="High" {{ old('priority') == 'High' ? 'selected' : '' }}>High</option>
+                    <option value="Medium" {{ old('priority', 'Medium') == 'Medium' ? 'selected' : '' }}>Medium</option>
+                    <option value="Low" {{ old('priority') == 'Low' ? 'selected' : '' }}>Low</option>
+                </select>
             </div>
             <div class="flex-1">
                 <label for="technology" class="block text-sm font-medium text-gray-700 mb-1">Technology</label>
-                <div class="relative">
-                    <select id="technology" name="technology"
-                        class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none">
-                        <option value="laravel">Laravel</option>
-                        <option value="react">React</option>
-                        <option value="vue">Vue</option>
-                        <option value="angular">Angular</option>
-                        <option value="flutter">Flutter</option>
-                        <option value="node">Node.js</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
+                <input type="text" id="technology" name="technology"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="e.g., Laravel, React" value="{{ old('technology') }}" required>
             </div>
         </div>
         <!-- Row 4 -->
         <div class="flex flex-col md:flex-row gap-4 md:gap-6">
             <div class="flex-1">
-                <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                <input type="date" id="startDate" name="startDate"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                <input type="date" id="start_date" name="start_date"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" value="{{ old('start_date') }}" required>
             </div>
             <div class="flex-1">
-                <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                <input type="date" id="endDate" name="endDate"
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                <input type="date" id="end_date" name="end_date"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" value="{{ old('end_date') }}" required>
             </div>
         </div>
         <!-- Row 5 -->
         <div class="flex flex-col md:flex-row gap-4 md:gap-6">
             <div class="flex-1">
-                <label for="earnFrom" class="block text-sm font-medium text-gray-700 mb-1">Earn From Project</label>
-                <input type="text" id="earnFrom" name="earnFrom"
+                <label for="earning" class="block text-sm font-medium text-gray-700 mb-1">Earn From Project</label>
+                <input type="text" id="earning" name="earning"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter earning">
+                    placeholder="Enter earning" value="{{ old('earning') }}" required>
             </div>
             <div class="flex-1">
-                <label for="paidOutside" class="block text-sm font-medium text-gray-700 mb-1">Paid to Outside</label>
-                <input type="text" id="paidOutside" name="paidOutside"
+                <label for="paid_outside" class="block text-sm font-medium text-gray-700 mb-1">Paid to Outside</label>
+                <input type="text" id="paid_outside" name="paid_outside"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Enter amount paid">
+                    placeholder="Enter amount paid" value="{{ old('paid_outside') }}" required>
             </div>
         </div>
         <!-- Row 6 -->
         <div class="flex flex-col md:flex-row gap-4 md:gap-6">
             <div class="flex-1">
-                <label for="workDoneBy" class="block text-sm font-medium text-gray-700 mb-1">Work Done by</label>
-                <input type="text" id="workDoneBy" name="workDoneBy"
+                <label for="work_done_by" class="block text-sm font-medium text-gray-700 mb-1">Work Done by</label>
+                <input type="text" id="work_done_by" name="work_done_by"
                     class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Add Person">
+                    placeholder="Add Person" value="{{ old('work_done_by') }}" required>
             </div>
             <div class="flex-1">
-                <label for="projectDoneBy" class="block text-sm font-medium text-gray-700 mb-1">Project Done by</label>
+                <label for="project_guide" class="block text-sm font-medium text-gray-700 mb-1">Project Guide</label>
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="projectDoneBy" name="projectDoneBy"
+                    <input type="text" id="project_guide" name="project_guide"
                         class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="Project Guide">
+                        placeholder="Project Guide" value="{{ old('project_guide') }}">
                     <button type="button" onclick="openModal()"
                         class="px-4 py-2 bg-[#7114EF] text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors duration-200 flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -320,21 +299,8 @@ function closeModal() {
     document.body.style.overflow = 'auto';
 }
 function selectGuide(guideName) {
-    document.getElementById('projectDoneBy').value = guideName;
+    document.getElementById('project_guide').value = guideName;
     closeModal();
-}
-function filterGuides() {
-    const searchTerm = document.getElementById('searchGuide').value.toLowerCase();
-    const guideItems = document.querySelectorAll('.guide-item');
-    guideItems.forEach(item => {
-        const name = item.querySelector('.font-medium').textContent.toLowerCase();
-        const department = item.querySelector('.text-sm').textContent.toLowerCase();
-        if (name.includes(searchTerm) || department.includes(searchTerm)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
 }
 // Close modal on Escape key
 document.addEventListener('keydown', function(event) {
