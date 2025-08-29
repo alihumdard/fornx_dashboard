@@ -7,12 +7,12 @@
     <div class="bg-white shadow rounded-lg p-6 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between">
         <div class="flex items-center space-x-4">
             <div class="relative">
-                <img src="{{ $user->user_pic ?? asset('assets/images/image.png') }}" alt="Profile"
+                <img src="{{ asset($user->user_pic) ?? asset('assets/images/image.png') }}" alt="Profile"
                     class="w-48 h-48 rounded-lg object-cover">
-                <button
+                {{-- <button
                     class="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-white/80 text-sm px-3 py-1 rounded-lg shadow">
                     Edit Photo
-                </button>
+                </button> --}}
             </div>
             <div>
                 <p>Name:</p>
@@ -25,7 +25,7 @@
                 <p class="text-gray-600">{{ $user->phone ?? 'N/A' }}</p>
             </div>
         </div>
-        <button class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 self-start md:self-end">Edit</button>
+        <button onclick="openModal()" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 self-start md:self-end">Edit</button>
     </div>
 
     <!-- Projects Tabs -->
@@ -90,12 +90,65 @@
     </div>
 </div>
 
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold mb-4">Edit Profile</h3>
+        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+
+            <div class="mb-3">
+                <label class="block text-sm">Name</label>
+                <input type="text" name="name" value="{{ old('name', $user->name) }}"
+                       class="w-full border px-3 py-2 rounded">
+            </div>
+
+            <div class="mb-3">
+                <label class="block text-sm">Email</label>
+                <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                       class="w-full border px-3 py-2 rounded">
+            </div>
+
+            <div class="mb-3">
+                <label class="block text-sm">Phone</label>
+                <input type="text" name="phone" value="{{ old('phone', $user->phone) }}"
+                       class="w-full border px-3 py-2 rounded">
+            </div>
+
+            <div class="mb-3">
+                <label class="block text-sm">Gender</label>
+                <select name="gender" class="w-full border px-3 py-2 rounded">
+                    <option value="Male" {{ $user->gender == 'Male' ? 'selected' : '' }}>Male</option>
+                    <option value="Female" {{ $user->gender == 'Female' ? 'selected' : '' }}>Female</option>
+                    <option value="Other" {{ $user->gender == 'Other' ? 'selected' : '' }}>Other</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="block text-sm">Profile Picture</label>
+                <input type="file" name="user_pic" class="w-full">
+            </div>
+
+            <div class="flex justify-end space-x-2">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 @endsection
 
 @push('scripts')
 <script>
 function openModal() {
-    // Implement modal logic if needed
+    document.getElementById('editProfileModal').classList.remove('hidden');
+}
+function closeModal() {
+    document.getElementById('editProfileModal').classList.add('hidden');
 }
 </script>
 @endpush
+

@@ -71,10 +71,10 @@ class User extends Authenticatable
      * The services that belong to the user.
      * Defines the many-to-many relationship.
      */
-    public function services(): BelongsToMany   
-    {
-        return $this->belongsToMany(Service::class, 'service_user', 'user_id', 'service_id');
-    }
+    // public function services(): BelongsToMany   
+    // {
+    //     return $this->belongsToMany(Service::class, 'service_user', 'user_id', 'service_id');
+    // }
 
     /**
      * The teams that the user belongs to.

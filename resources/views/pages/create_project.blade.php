@@ -207,14 +207,15 @@
                 </div>
             </div>
         </div>
+        {{-- <input type="hidden" value="{{ $id }}" name="id">
         <!-- Save Button -->
         <div class="flex justify-start">
             <button type="submit"
                 class="bg-[#7114EF] w-full sm:w-20 text-white font-medium py-2 px-4 rounded-md transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
                 Save
             </button>
-        </div>
-    </form>
+        </div> --}}
+    {{-- </form> --}}
 </div>
 <!-- Modal -->
 <div id="modal" class="fixed inset-0 z-50 hidden">
@@ -235,57 +236,52 @@
             <!-- Modal Body -->
             <div class="modal-body flex-1 overflow-y-auto p-4 space-y-4">
                 <!-- Reference Website -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Reference Website</label>
-                    <input type="text" placeholder="Add Website URL"
-                        class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none">
-                </div>
-                <!-- Project Description -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Project Description</label>
-                    <input type="text" placeholder="Enter project description"
-                        class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none">
-                </div>
-                <!-- CPANEL -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">CPanel</label>
-                    <input type="text" placeholder="Enter CPanel details"
-                        class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none">
-                </div>
-                <!-- Credentials -->
-                <div>
-                    <p class="text-sm font-semibold text-gray-800 mb-2">Credentials</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm text-gray-700 mb-1">Login</label>
-                            <input type="text" placeholder="Enter login"
-                                class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-sm text-gray-700 mb-1">Password</label>
-                            <input type="text" placeholder="Enter password"
-                                class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none">
-                        </div>
-                    </div>
-                </div>
-                <!-- Notes -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-                    <textarea placeholder="Enter any notes"
-                        class="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"></textarea>
-                </div>
+    
+    <div>
+        <label>Reference Website</label>
+        <input type="text" placeholder="Add Website URL" name="reference_website"
+            class="w-full border rounded-lg px-3 py-2" value="{{ old('reference_website') }}">
+    </div>
+
+    <div>
+        <label>Project Description</label>
+        <input type="text" placeholder="Enter project description" name="description"
+            class="w-full border rounded-lg px-3 py-2" value="{{ old('description') }}">
+    </div>
+
+    <div>
+        <label>CPanel</label>
+        <input type="text" placeholder="Enter CPanel details" name="cpanel_details"
+            class="w-full border rounded-lg px-3 py-2" value="{{ old('cpanel_details') }}">
+    </div>
+
+    <div>
+        <p>Credentials</p>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label>Login</label>
+                <input type="text" placeholder="Enter login" name="login"
+                    class="w-full border rounded-lg px-3 py-2">
             </div>
-            <!-- Modal Footer -->
-            <div class="border-t px-4 py-3 sm:px-6 sm:py-4 flex flex-col sm:flex-row justify-end gap-3 bg-gray-50">
-                <button onclick="closeModal()"
-                    class="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 order-2 sm:order-1">
-                    Cancel
-                </button>
-                <button
-                    class="px-4 py-2 rounded-lg bg-[#7114EF] text-white font-medium hover:bg-purple-700 transition order-1 sm:order-2">
-                    Save
-                </button>
+            <div>
+                <label>Password</label>
+                <input type="text" placeholder="Enter password" name="password"
+                    class="w-full border rounded-lg px-3 py-2">
             </div>
+        </div>
+    </div>
+
+    <div>
+        <label>Notes</label>
+        <textarea name="notes" class="w-full border rounded-lg px-3 py-2">{{ old('notes') }}</textarea>
+    </div>
+
+    <div class="flex justify-end gap-3">
+        <button type="button" onclick="closeModal()" class="px-4 py-2 border">Cancel</button>
+        <button type="submit" class="px-4 py-2 bg-[#7114EF] text-white rounded-lg">Save</button>
+    </div>
+</form>
+
         </div>
     </div>
 </div>
