@@ -61,15 +61,22 @@ class UserController extends Controller
         // Assuming projects are assigned to users via the 'work_done_by' field for simplicity.
         // A better approach would be a proper relationship.
         $projects = Project::where('work_done_by', $user->name)->get();
-        return view('pages.users_tab.user_profile', compact('user', 'projects'));
+        return view('pages.users_tab.user_profile', compact('user', 'projects')); 
     }
 
-    public function toggleStatus(User $user)
+    public function toggleStatus($id,$slug)
     {
-        $user->status = ($user->status == 1) ? 3 : 1;
+        $user = User::find($id);
+        if($slug == 'block')
+        {
+           $user->status = 3; 
+        }elseif($slug == 'unblock')
+        {
+             $user->status = 2; 
+        }
         $user->save();
-        $message = ($user->status == 1) ? 'User activated successfully.' : 'User deactivated successfully.';
-        return redirect()->route('admin.users.index')->with('success', $message);
+        $message = 'User' . $slug . 'successfully.';
+        return redirect()->back()->with('success', $message);
     }
 
     public function destroy(User $user)
@@ -99,4 +106,35 @@ class UserController extends Controller
         $user->update($data);
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
+
+    public function profile_update(Request $request)
+    {
+        $users = Auth::user()->id;
+         
+        $user = User::find($users);
+        $request->validate([
+            'name'   => 'required|string|max:255',
+            'email'  => 'required|email|unique:users,email,' . $user->id,
+            'phone'  => 'nullable|string|max:20',
+            // 'gender' => 'nullable|string|in:Male,Female,Other',
+            'user_pic' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        // Handle profile picture upload
+        if ($request->hasFile('user_pic')) {
+            $filename = time() . '.' . $request->user_pic->extension();
+            $request->user_pic->move(public_path('uploads/profile'), $filename);
+            $user->user_pic = 'uploads/profile/' . $filename;
+        }
+
+        // Update other fields
+        $user->name   = $request->name;
+        $user->email  = $request->email;
+        $user->phone  = $request->phone;
+        // $user->gender = $request->gender;
+        $user->save();
+
+        return redirect()->route('users.profile')->with('success', 'Profile updated successfully.');
+    }
+
 }

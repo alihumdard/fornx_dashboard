@@ -34,7 +34,7 @@ Route::middleware('auth')->group(function () {
     // Admin User Management
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
-        Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+        Route::get('/users/{id}/{slug}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
         Route::patch('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
     });
@@ -51,10 +51,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/project-progress-2/{project}', [ProjectController::class, 'progress2'])->name('project.progress2');
     Route::get('/project-progress-3/{project}', [ProjectController::class, 'progress3'])->name('project.progress3');
 
-    // Clients
-    Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
-    Route::get('/clients/create', [ClientController::class, 'create'])->name('clients.add');
-    Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
+  // Clients
+Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
+Route::get('/clients/create', [ClientController::class, 'create'])->name('clients.add');
+Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
+Route::get('/clients/{client}/edit', [ClientController::class, 'edit'])->name('clients.edit');
+Route::put('/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
+Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
+
 
 
     // Teams & Users
@@ -63,11 +67,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/add', [UserController::class, 'create'])->name('users.add');
     Route::post('/users/add', [UserController::class, 'store'])->name('users.store');
    Route::get('/users/profile', [UserController::class, 'profile'])->name('users.profile');
+   Route::put('/user/profile/update', [UserController::class, 'profile_update'])->name('profile.update');
 
     // Transactions
-    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
-    Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
-    Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+  Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
+Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+Route::get('/transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
+Route::put('/transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
+Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
     // Jobs
     Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');

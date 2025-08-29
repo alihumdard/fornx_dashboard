@@ -59,4 +59,39 @@ class ClientController extends Controller
 
         return redirect()->route('clients.index')->with('success', 'Client added successfully.');
     }
+    public function edit(Client $client)
+{
+    return view('pages.clients.edit', compact('client'));
+}
+
+public function update(Request $request, Client $client)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:clients,email,' . $client->id,
+        'phone' => 'nullable|string|max:20',
+        'gender' => 'nullable|string',
+        'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    if ($request->hasFile('photo')) {
+        $path = $request->file('photo')->store('client_photos', 'public');
+        $client->photo = $path;
+    }
+
+    $client->name = $request->name;
+    $client->email = $request->email;
+    $client->phone = $request->phone;
+    $client->gender = $request->gender;
+    $client->save();
+
+    return redirect()->route('clients.index')->with('success', 'Client updated successfully.');
+}
+
+public function destroy(Client $client)
+{
+    $client->delete();
+    return redirect()->route('clients.index')->with('success', 'Client deleted successfully.');
+}
+
 }

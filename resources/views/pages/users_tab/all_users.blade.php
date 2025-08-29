@@ -54,8 +54,8 @@
                                 @elseif($user->status == 2) bg-yellow-100 text-yellow-700
                                 @else bg-red-100 text-red-800 @endif">
                                 @if($user->status == 1) Active
-                                @elseif($user->status == 2) Pending
-                                @else Inactive @endif
+                                @elseif($user->status == 2) DeActive
+                                @else Block @endif
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Full Access</td> <!-- Placeholder -->
@@ -71,12 +71,12 @@
                                     class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10"
                                     role="menu">
                                     <div class="py-1">
-                                        <button
+                                       <a href="{{ route('admin.users.toggleStatus',['id' => $user->id,'slug' => 'block']) }}"> <button
                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full text-left"
-                                            role="menuitem">Block</button>
-                                        <button
+                                            role="menuitem">Block</button> </a>
+                                          <a href="{{ route('admin.users.toggleStatus',['id' => $user->id,'slug' => 'unblock']) }}"><button
                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full text-left"
-                                            role="menuitem">Unblock</button>
+                                            role="menuitem">Unblock</button> </a>
                                     </div>
                                 </div>
                             </div>

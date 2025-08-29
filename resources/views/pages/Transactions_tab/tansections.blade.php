@@ -45,12 +45,15 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ \Carbon\Carbon::parse($transaction->date)->format('Y - m - d') }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $transaction->updated_at->format('Y - m - d') }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button class="text-blue-600 hover:text-blue-900 mr-3">
+                       <a href="{{ route('transactions.edit',$transaction->id) }}"> <button class="text-blue-600 hover:text-blue-900 mr-3">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="text-red-600 hover:text-red-900">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                       </a>
+                       <form action="{{ route('transactions.destroy', $transaction->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="text-red-600 hover:text-red-900 mr-3"><i class="fas fa-trash-alt"></i></button>
+        </form>
                     </td>
                 </tr>
                 @empty

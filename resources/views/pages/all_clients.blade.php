@@ -42,8 +42,14 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $client->phone ?? 'N/A' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $client->projects->count() }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                            <a href="#" class="ml-4 text-red-600 hover:text-red-900">Delete</a>
+                            <a href="{{ route('clients.edit', $client->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                              <form action="{{ route('clients.destroy', $client->id) }}" method="POST" class="inline">
+        @csrf
+        @method('DELETE')
+        <button type="submit" onclick="return confirm('Are you sure you want to delete this client?')" class="ml-4 text-red-600 hover:text-red-900">
+          Delete
+        </button>
+    </form>
                         </td>
                     </tr>
                     @empty

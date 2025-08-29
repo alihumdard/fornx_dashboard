@@ -28,14 +28,37 @@ class TransactionController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        Transaction::create([
-            'name' => $request->name,
-            'amount' => $request->amount,
-            'type' => $request->type,
-            'date' => $request->date,
-            'notes' => $request->notes,
-        ]);
+        Transaction::create($request->only(['name','amount','type','date','notes']));
 
         return redirect()->route('transactions.index')->with('success', 'Transaction added successfully.');
+    }
+
+    // 🔹 Edit form
+    public function edit(Transaction $transaction)
+    {
+        return view('pages.Transactions_tab.edit_transaction', compact('transaction'));
+    }
+
+    // 🔹 Update data
+    public function update(Request $request, Transaction $transaction)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'amount' => 'required|numeric',
+            'type' => 'required|string|in:Cash In,Cash Out',
+            'date' => 'required|date',
+            'notes' => 'nullable|string',
+        ]);
+
+        $transaction->update($request->only(['name','amount','type','date','notes']));
+
+        return redirect()->route('transactions.index')->with('success', 'Transaction updated successfully.');
+    }
+
+    // 🔹 Delete
+    public function destroy(Transaction $transaction)
+    {
+        $transaction->delete();
+        return redirect()->route('transactions.index')->with('success', 'Transaction deleted successfully.');
     }
 }
