@@ -3,7 +3,7 @@
 
 @section('content')
 
-<div class=" bg-white rounded-xl shadow-sm p-6">
+<div class=" bg-white rounded-xl shadow-sm p-6  mt-12 sm:mt-0" >
 
     <!-- Heading -->
     <h2 class="text-lg font-semibold text-gray-800 mb-4">Select Client</h2>

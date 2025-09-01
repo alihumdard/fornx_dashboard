@@ -54,7 +54,7 @@
     </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen py-8">
+<body class="bg-gray-100 min-h-screen py-8  mt-12 sm:mt-0">
     <!-- Top Bar -->
     <div class="max-w-6xl mx-auto flex justify-between items-center mb-6 border-b pb-4">
         <div class="flex items-center">

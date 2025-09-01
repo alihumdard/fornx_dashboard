@@ -3,7 +3,7 @@
 
 @section('content')
 
-<div class="py-6">
+<div class="py-6  mt-12 sm:mt-0">
     <div class="bg-white shadow rounded-lg p-6 mb-6 flex items-center justify-between">
         <div class="flex items-center space-x-4">
             <div class="relative">

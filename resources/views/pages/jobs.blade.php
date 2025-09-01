@@ -4,7 +4,7 @@
 @section('content')
 
 <!-- Jobs Section -->
-<div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto  mt-12 sm:mt-0">
 
     <!-- Header Stats -->
     <h1 class="text-2xl font-semibold mb-4">Jobs</h1>
