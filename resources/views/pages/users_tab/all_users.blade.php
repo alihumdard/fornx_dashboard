@@ -47,7 +47,9 @@
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $user->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->role }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@foreach($user->getRoleNames() as $role)
+                        <span class="badge bg-primary">{{ $role }}</span>
+                    @endforeach</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                 @if($user->status == 1) bg-green-100 text-green-800
