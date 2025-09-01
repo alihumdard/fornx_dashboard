@@ -75,8 +75,9 @@ Route::delete('/teams/{team}', [TeamController::class, 'destroy'])->name('teams.
     Route::get('/users/all', [UserController::class, 'allUsers'])->name('users.all');
     Route::get('/users/add', [UserController::class, 'create'])->name('users.add');
     Route::post('/users/add', [UserController::class, 'store'])->name('users.store');
-   Route::get('/users/profile', [UserController::class, 'profile'])->name('users.profile');
-   Route::put('/user/profile/update', [UserController::class, 'profile_update'])->name('profile.update');
+   Route::get('/users/profile/{id}', [UserController::class, 'profile'])->name('users.profile');
+   Route::get('/users/myprofile', [UserController::class, 'myprofile'])->name('users.myprofile');
+   Route::put('/user/profile/update/{id}', [UserController::class, 'profile_update'])->name('profile.update');
 
     // Transactions
   Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');

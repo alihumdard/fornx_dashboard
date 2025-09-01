@@ -94,7 +94,7 @@
 <div id="editProfileModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
         <h3 class="text-lg font-semibold mb-4">Edit Profile</h3>
-        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('profile.update', $user->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
