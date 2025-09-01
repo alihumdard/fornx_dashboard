@@ -48,7 +48,6 @@ class AuthController extends Controller
         if ($user && $user->trashed()) {
             return back()->withErrors(['email' => 'Your account has been deactivated. Please contact an administrator to reactivate it.'])->onlyInput('email');
         }
-
         // THE FIX IS HERE: We pass the 'remember' checkbox value to Auth::attempt()
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
@@ -57,10 +56,14 @@ class AuthController extends Controller
 
             if ($loggedInUser->status == 3) {
                 Auth::logout();
-                return back()->withErrors(['email' => 'Your account is currently suspended. Please contact an administrator.'])->onlyInput('email');
+                return back()->withErrors(['email' => 'Your account is currently block. Please contact an administrator.'])->onlyInput('email');
             }
 
             if ($loggedInUser) {
+                 $id = Auth::user()->id;
+        $user = User::find($id);
+        $user->status = 1;
+        $user->save();
                 return redirect()->route('dashboard');
             }
 
@@ -124,6 +127,10 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        $id = Auth::user()->id;
+        $user = User::find($id);
+        $user->status = 2;
+        $user->save();
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

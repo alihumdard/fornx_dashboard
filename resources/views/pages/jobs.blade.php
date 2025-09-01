@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', 'Dashbaord')
+@section('title', 'Jobs')
 
 @section('content')
 
@@ -12,15 +12,12 @@
 
         <!-- Job Posts -->
         <div class="bg-white shadow rounded-xl p-5 gap-4">
-            <!-- Icon -->
             <div class="">
                 <i class="fas fa-briefcase text-2xl p-3 bg-purple-100 text-purple-600 rounded-lg"></i>
             </div>
-
-            <!-- Text -->
             <div class="pt-5 pl-1">
                 <p class="text-gray-500 text-sm ">Job Posts</p>
-                <p class="text-xl font-bold">60</p>
+                <p class="text-xl font-bold">{{ $jobPostsCount }}</p>
             </div>
         </div>
 
@@ -32,7 +29,7 @@
             </div>
             <div class="pt-5 pl-1">
                 <p class="text-gray-500 text-sm">Total Applications</p>
-                <p class="text-xl font-bold">252</p>
+                <p class="text-xl font-bold">{{ $totalApplicationsCount }}</p>
             </div>
         </div>
 
@@ -43,7 +40,7 @@
             </div>
             <div class="pt-5 pl-1">
                 <p class="text-gray-500 text-sm">Shortlisted</p>
-                <p class="text-xl font-bold">15</p>
+                <p class="text-xl font-bold">{{ $shortlistedCount }}</p>
             </div>
         </div>
 
@@ -54,7 +51,7 @@
             </div>
             <div class="pt-5 pl-1">
                 <p class="text-gray-500 text-sm">Interview</p>
-                <p class="text-xl font-bold">10</p>
+                <p class="text-xl font-bold">{{ $interviewsCount }}</p>
             </div>
         </div>
 
@@ -88,51 +85,23 @@
                     </tr>
                 </thead>
                 <tbody class="text-sm text-gray-700">
+                    @forelse ($jobs as $job)
                     <tr class="border-b">
-                        <td class="py-3 px-4">UI UX Designer</td>
-                        <td class="py-3 px-4">Full Time</td>
-                        <td class="py-3 px-4">12</td>
-                        <td class="py-3 px-4">135</td>
-                        <td class="py-3 px-4"><span
-                                class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Active</span>
+                        <td class="py-3 px-4">{{ $job->title }}</td>
+                        <td class="py-3 px-4">{{ $job->category }}</td>
+                        <td class="py-3 px-4">{{ $job->openings }}</td>
+                        <td class="py-3 px-4">{{ $job->applications }}</td>
+                        <td class="py-3 px-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium {{ $job->status == 'Active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                                {{ $job->status }}
+                            </span>
                         </td>
                     </tr>
-                    <tr class="border-b">
-                        <td class="py-3 px-4">Full Stack Dev</td>
-                        <td class="py-3 px-4">Full Time</td>
-                        <td class="py-3 px-4">08</td>
-                        <td class="py-3 px-4">100</td>
-                        <td class="py-3 px-4"><span
-                                class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Inactive</span>
-                        </td>
-                    </tr>
-                    <tr class="border-b">
-                        <td class="py-3 px-4">DevOps</td>
-                        <td class="py-3 px-4">Internship</td>
-                        <td class="py-3 px-4">12</td>
-                        <td class="py-3 px-4">05</td>
-                        <td class="py-3 px-4"><span
-                                class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Active</span>
-                        </td>
-                    </tr>
-                    <tr class="border-b">
-                        <td class="py-3 px-4">Android Dev</td>
-                        <td class="py-3 px-4">Full Time</td>
-                        <td class="py-3 px-4">04</td>
-                        <td class="py-3 px-4">45</td>
-                        <td class="py-3 px-4"><span
-                                class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Active</span>
-                        </td>
-                    </tr>
+                    @empty
                     <tr>
-                        <td class="py-3 px-4">IOS Developer</td>
-                        <td class="py-3 px-4">Full Time</td>
-                        <td class="py-3 px-4">18</td>
-                        <td class="py-3 px-4">96</td>
-                        <td class="py-3 px-4"><span
-                                class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Inactive</span>
-                        </td>
+                        <td colspan="5" class="text-center py-4 text-gray-500">No jobs found.</td>
                     </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

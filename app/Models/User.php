@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany; // <-- Import this
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes,HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -71,8 +72,21 @@ class User extends Authenticatable
      * The services that belong to the user.
      * Defines the many-to-many relationship.
      */
-    public function services(): BelongsToMany   
+    // public function services(): BelongsToMany   
+    // {
+    //     return $this->belongsToMany(Service::class, 'service_user', 'user_id', 'service_id');
+    // }
+
+    /**
+     * The teams that the user belongs to.
+     */
+    public function teams(): BelongsToMany
     {
-        return $this->belongsToMany(Service::class, 'service_user', 'user_id', 'service_id');
+        return $this->belongsToMany(Team::class);
+    }
+        // Teams where this user is leader
+    public function leadingTeams()
+    {
+        return $this->hasMany(Team::class, 'leader_id');
     }
 }
