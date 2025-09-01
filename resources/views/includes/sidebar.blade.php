@@ -28,10 +28,29 @@
                     </div>
                 </div>
 
-                <div>
-                    <!-- Pages Link -->
+                
+                        <!-- Pages Link -->
                     <div>
-                        <button id="pages-toggle" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 w-full text-left">
+                        <button onclick="toggleDropdown('roles-dropdown', 'arrow-projects')" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 w-full text-left">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+                            </svg>
+                            Role & Permission
+                            <svg id="arrow-icon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 ml-auto transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <!-- Dropdown Items -->
+                        <div id="roles-dropdown" class="hidden pl-10 mt-1 space-y-1">
+                            <a href="{{ route('roles.index') }}" class="block py-2 text-sm text-gray-300 hover:text-white">Roles</a>
+                            <a href="{{ route('permissions.index') }}" class="block py-2 text-sm text-gray-300 hover:text-white">Permission</a>
+                        </div>
+                    </div>
+            
+                    <!-- Pages Link -->
+                    
+                    <div>
+                        <button onclick="toggleDropdown('pages-dropdown', 'arrow-projects')" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 w-full text-left">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
                             </svg>
@@ -47,7 +66,6 @@
                             <a href="{{ route('project.progress3', ['project' => 1]) }}" class="block py-2 text-sm text-gray-300 hover:text-white">Project Progress 3</a>
                         </div>
                     </div>
-                </div>
                 <div>
                     <button onclick="toggleDropdown('transactionDropdown1', 'arrowIcon1')" class="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-white/10">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,7 +95,8 @@
                         <a href="{{ route('users.all') }}" class="block p-2 rounded hover:bg-white/10">All users</a>
                         <a href="{{ route('users.add') }}" class="block p-2 rounded hover:bg-white/10">Add new users</a>
                         <a href="{{ route('users.profile') }}" class="block p-2 rounded hover:bg-white/10">Profile</a>
-                        <a href="{{ route('teams.index') }}" class="block p-2 rounded hover:bg-white/10">Teams</a>
+                        <a href="{{ route('teams.index') }}" class="block p-2 rounded hover:bg-white/10">Teams Dasboar</a>
+                          <a href="{{ route('teams.indexs') }}" class="block p-2 rounded hover:bg-white/10">Teams</a>
                     </div>
                 </div>
                 <div>

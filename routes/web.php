@@ -10,6 +10,8 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\JobController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PermissionController;
 
 // Authentication Routes
 Route::get('/', [AuthController::class, 'index']);
@@ -61,8 +63,15 @@ Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('
 
 
 
-    // Teams & Users
-    Route::get('/teams', [TeamController::class, 'index'])->name('teams.index');
+    
+   // Teams CRUD
+Route::get('/teamss', [TeamController::class, 'index'])->name('teams.index');
+Route::get('/teams', [TeamController::class, 'indexs'])->name('teams.indexs');
+Route::get('/teams/{id}/members', [TeamController::class, 'members'])->name('member');
+Route::post('/teams', [TeamController::class, 'store'])->name('teams.store');
+Route::put('/teams/{team}', [TeamController::class, 'update'])->name('teams.update');
+Route::delete('/teams/{team}', [TeamController::class, 'destroy'])->name('teams.destroy');
+
     Route::get('/users/all', [UserController::class, 'allUsers'])->name('users.all');
     Route::get('/users/add', [UserController::class, 'create'])->name('users.add');
     Route::post('/users/add', [UserController::class, 'store'])->name('users.store');
@@ -92,4 +101,10 @@ Route::delete('/transactions/{transaction}', [TransactionController::class, 'des
     Route::get('/resource-management', function () { return view('pages.blank'); })->name('resource.management');
     Route::get('/project-template', function () { return view('pages.blank'); })->name('project.template');
     Route::get('/menu-settings', function () { return view('pages.blank'); })->name('menu.settings');
-});
+
+
+Route::resource('roles', RoleController::class);
+Route::resource('permissions', PermissionController::class);
+
+
+  });

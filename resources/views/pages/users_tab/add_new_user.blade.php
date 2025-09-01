@@ -51,34 +51,48 @@
                 </div>
             </div>
 
-            <!-- Role and Access Row -->
-            <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-4">
-                <!-- Role Field -->
-                <div class="flex-1">
-                    <label for="role" class="block text-gray-700 text-sm font-medium mb-2">Role</label>
-                    <select id="role" name="role"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                        <option value="">Select Role</option>
-                        <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : '' }}>Admin</option>
-                        <option value="Project Manager" {{ old('role') == 'Project Manager' ? 'selected' : '' }}>Project Manager</option>
-                        <option value="Employee" {{ old('role') == 'Employee' ? 'selected' : '' }}>Employee</option>
-                        <option value="Client" {{ old('role') == 'Client' ? 'selected' : '' }}>Client</option>
-                        <option value="Editor" {{ old('role') == 'Editor' ? 'selected' : '' }}>Editor</option>
-                    </select>
-                </div>
+        <!-- Role Selection -->
+<div class="flex-1">
+    <label for="role" class="block text-gray-700 text-sm font-medium mb-2">Role</label>
+    <select id="role" name="role"
+        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        <option value="">Select Role</option>
+        @foreach($roles as $role)
+            <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>
+                {{ $role->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
 
-                <div class="flex-1">
-                    <label for="access" class="block text-gray-700 text-sm font-medium mb-2">Access</label>
-                    <select id="access" name="access"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Select Access type</option>
-                        <option value="Website Editor">Website Editor</option>
-                        <option value="Project Manager">Project Manager</option>
-                        <option value="Full access">Full access</option>
-                        <option value="View Only">View Only</option>
-                    </select>
-                </div>
-            </div>
+<!-- Permissions -->
+<div class="mt-4">
+    <label class="block text-gray-700 text-sm font-medium mb-2">Permissions</label>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 border p-3 rounded">
+        @foreach($permissions as $permission)
+            <label class="flex items-center space-x-2">
+                <input type="checkbox" name="permissions[]" value="{{ $permission->name }}"
+                       {{ in_array($permission->name, old('permissions', [])) ? 'checked' : '' }}>
+                <span>{{ $permission->name }}</span>
+            </label>
+        @endforeach
+    </div>
+</div>
+
+<!-- Teams -->
+<div class="mt-4">
+    <label for="teams" class="block text-gray-700 text-sm font-medium mb-2">Teams</label>
+    <select id="teams" name="teams[]" multiple
+        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        @foreach($teams as $team)
+            <option value="{{ $team->id }}" {{ in_array($team->id, old('teams', [])) ? 'selected' : '' }}>
+                {{ $team->name }}
+            </option>
+        @endforeach
+    </select>
+    <small class="text-gray-500">Hold CTRL (Windows) or CMD (Mac) to select multiple</small>
+</div>
+
 
             <div class="flex-1">
                 <label for="phone" class="block text-gray-700 text-sm font-medium mb-2">Phone Number</label>

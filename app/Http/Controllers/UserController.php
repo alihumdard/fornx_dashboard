@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use App\Models\Team;
 
 class UserController extends Controller
 {
@@ -22,38 +25,60 @@ class UserController extends Controller
         return view('pages.users.index', compact('users'));
     }
 
-    public function allUsers()
-    {
-        $users = User::where('role', '!=', 'Admin')->latest()->get();
-        return view('pages.users_tab.all_users', compact('users'));
+ public function allUsers()
+{
+    $users = User::where('id', '!=', 1)->latest()->get();
+    return view('pages.users_tab.all_users', compact('users'));
+}
+
+
+
+
+public function create()
+{
+    $roles = Role::all();
+    $permissions = Permission::all();
+    $teams = Team::all();
+
+    return view('pages.users_tab.add_new_user', compact('roles', 'permissions', 'teams'));
+}
+
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'phone' => 'nullable|string|max:20',
+        'role' => 'required|string|exists:roles,name',
+        'password' => 'required|string|min:6',
+        'teams' => 'nullable|array',
+        'permissions' => 'nullable|array',
+    ]);
+
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'password' => Hash::make($request->password),
+        'status' => 1,
+    ]);
+
+    // Assign role
+    $user->assignRole($request->role);
+
+    // Assign permissions (optional extra permissions)
+    if ($request->filled('permissions')) {
+        $user->givePermissionTo($request->permissions);
     }
 
-    public function create()
-    {
-        return view('pages.users_tab.add_new_user');
+    // Attach to teams
+    if ($request->filled('teams')) {
+        $user->teams()->sync($request->teams);
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'phone' => 'nullable|string|max:20',
-            'role' => 'required|string|max:255',
-            'password' => 'required|string|min:6',
-        ]);
+    return redirect()->route('users.all')->with('success', 'User created successfully.');
+}
 
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'role' => $request->role,
-            'password' => Hash::make($request->password),
-            'status' => 1, // Default to Active
-        ]);
-
-        return redirect()->route('users.all')->with('success', 'User created successfully.');
-    }
 
     public function profile()
     {
