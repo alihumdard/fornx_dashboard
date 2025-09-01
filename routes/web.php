@@ -108,3 +108,8 @@ Route::resource('permissions', PermissionController::class);
 
 
   });
+
+  // web.php
+Route::get('/admin', function () {
+    return view('pages.admin.admin');
+})->name('admin');
