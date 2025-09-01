@@ -12,13 +12,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes,HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
+    
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
+    protected $guard_name = 'web';
+
     protected $fillable = [
         'name',
         'email',
@@ -65,7 +68,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'subscribed_to_newsletter' => 'boolean',            
         'terms_accepted_at' => 'datetime',                   
-        'privacy_policy_accepted_at' => 'datetime',          
+        'privacy_policy_accepted_at' => 'datetime',  
+        
     ];
 
     /**
