@@ -50,9 +50,9 @@ public function store(Request $request)
         'email' => 'required|string|email|max:255|unique:users',
         'phone' => 'nullable|string|max:20',
         'role' => 'required|string|exists:roles,name',
+        'permissions' => 'nullable|array',
         'password' => 'required|string|min:6',
         'teams' => 'nullable|array',
-        'permissions' => 'nullable|array',
     ]);
 
     $user = User::create([
@@ -68,7 +68,7 @@ public function store(Request $request)
 
     // Assign permissions (optional extra permissions)
     if ($request->filled('permissions')) {
-        $user->givePermissionTo($request->permissions);
+        $user->syncPermissions($request->permissions);
     }
 
     // Attach to teams
@@ -80,7 +80,17 @@ public function store(Request $request)
 }
 
 
-    public function profile()
+    public function profile($id)
+    {
+        $user = User::findOrFail($id);
+        // Assuming projects are assigned to users via the 'work_done_by' field for simplicity.
+        // A better approach would be a proper relationship.
+        $projects = Project::where('work_done_by', $user->name)->get();
+        return view('pages.users_tab.user_profile', compact('user', 'projects')); 
+    }
+
+
+     public function myprofile()
     {
         $user = Auth::user();
         // Assuming projects are assigned to users via the 'work_done_by' field for simplicity.
@@ -88,6 +98,7 @@ public function store(Request $request)
         $projects = Project::where('work_done_by', $user->name)->get();
         return view('pages.users_tab.user_profile', compact('user', 'projects')); 
     }
+
 
     public function toggleStatus($id,$slug)
     {
@@ -132,11 +143,9 @@ public function store(Request $request)
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
 
-    public function profile_update(Request $request)
-    {
-        $users = Auth::user()->id;
-         
-        $user = User::find($users);
+    public function profile_update(Request $request, $id)
+    {  
+        $user = User::findOrFail($id);
         $request->validate([
             'name'   => 'required|string|max:255',
             'email'  => 'required|email|unique:users,email,' . $user->id,
@@ -159,7 +168,7 @@ public function store(Request $request)
         // $user->gender = $request->gender;
         $user->save();
 
-        return redirect()->route('users.profile')->with('success', 'Profile updated successfully.');
+        return redirect()->route('users.profile', $user->id)->with('success', 'Profile updated successfully.');
     }
 
 }

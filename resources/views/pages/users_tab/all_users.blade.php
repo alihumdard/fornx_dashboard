@@ -45,7 +45,11 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse ($users as $user)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $user->name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <a href="{{ route('users.profile', $user->id) }}">
+                                {{ $user->name }}
+                            </a>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@foreach($user->getRoleNames() as $role)
                         <span class="badge bg-primary">{{ $role }}</span>
@@ -60,7 +64,9 @@
                                 @else Block @endif
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Full Access</td> <!-- Placeholder -->
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                               {{ $user->getAllPermissions()->pluck('name')->implode(', ') ?: 'No Permissions' }}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->updated_at->format('Y-m-d') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="relative inline-block text-left">
@@ -94,6 +100,7 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @push('scripts')

@@ -94,7 +94,7 @@
                     <div id="usersDropdown" class="hidden ml-8 mt-1 space-y-1">
                         <a href="{{ route('users.all') }}" class="block p-2 rounded hover:bg-white/10">All users</a>
                         <a href="{{ route('users.add') }}" class="block p-2 rounded hover:bg-white/10">Add new users</a>
-                        <a href="{{ route('users.profile') }}" class="block p-2 rounded hover:bg-white/10">Profile</a>
+                        <a href="{{ route('users.myprofile') }}" class="block p-2 rounded hover:bg-white/10">Profile</a>
                         <a href="{{ route('teams.index') }}" class="block p-2 rounded hover:bg-white/10">Teams Dasboar</a>
                           <a href="{{ route('teams.indexs') }}" class="block p-2 rounded hover:bg-white/10">Teams</a>
                     </div>
