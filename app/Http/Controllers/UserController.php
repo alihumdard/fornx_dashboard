@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Project;
+use App\Models\AssignProject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -83,10 +84,17 @@ public function store(Request $request)
     public function profile($id)
     {
         $user = User::findOrFail($id);
-        // Assuming projects are assigned to users via the 'work_done_by' field for simplicity.
-        // A better approach would be a proper relationship.
-        $projects = Project::where('work_done_by', $user->name)->get();
-        return view('pages.users_tab.user_profile', compact('user', 'projects')); 
+        $assignedProjects = AssignProject::where('user_id', $user->id)->pluck('project_id');
+        $projects = Project::whereIn('id', $assignedProjects)->get();
+
+        $counts = [
+        'all'        => $projects->count(),
+        'in_progress'=> $projects->where('status', 'In Progress')->count(),
+        'canceled'   => $projects->where('status', 'Canceled')->count(),
+        'completed'  => $projects->where('status', 'Completed')->count(),
+        ];
+        
+        return view('pages.users_tab.user_profile', compact('user', 'projects', 'counts')); 
     }
 
 
