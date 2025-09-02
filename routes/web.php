@@ -114,3 +114,10 @@ Route::resource('permissions', PermissionController::class);
 Route::get('/admin', function () {
     return view('pages.admin.admin');
 })->name('admin');
+
+Route::get('/Time_Check_in', function () {
+    return view('pages.Time_tabs.TimeCheck_in');
+})->name('Time_Check_in');
+Route::get('/Time_Check_out', function () {
+    return view('pages.Time_tabs.TimeCheck_out');
+})->name('Time_Check_out');
