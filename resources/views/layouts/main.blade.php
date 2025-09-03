@@ -21,7 +21,7 @@
     </div>
 
     <!-- Floating WhatsApp Button-->
-    <style>
+    <!-- <style>
         @keyframes pulsing {
             to {
                 box-shadow: 0 0 0 30px rgba(66, 219, 135, 0);
@@ -35,7 +35,7 @@
             </div>
         </a>
         <p style="margin-top: 8px; color: #ffff; font-size: 13px;">Talk to us?</p>
-    </div>
+    </div> -->
 
     @include('includes.footer')
 

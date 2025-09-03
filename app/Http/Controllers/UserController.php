@@ -26,59 +26,59 @@ class UserController extends Controller
         return view('pages.users.index', compact('users'));
     }
 
- public function allUsers()
-{
-    $users = User::where('id', '!=', 1)->latest()->get();
-    return view('pages.users_tab.all_users', compact('users'));
-}
-
-
-
-
-public function create()
-{
-    $roles = Role::all();
-    $permissions = Permission::all();
-    $teams = Team::all();
-
-    return view('pages.users_tab.add_new_user', compact('roles', 'permissions', 'teams'));
-}
-
-public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'phone' => 'nullable|string|max:20',
-        'role' => 'required|string|exists:roles,name',
-        'permissions' => 'nullable|array',
-        'password' => 'required|string|min:6',
-        'teams' => 'nullable|array',
-    ]);
-
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'phone' => $request->phone,
-        'password' => Hash::make($request->password),
-        'status' => 1,
-    ]);
-
-    // Assign role
-    $user->assignRole($request->role);
-
-    // Assign permissions (optional extra permissions)
-    if ($request->filled('permissions')) {
-        $user->syncPermissions($request->permissions);
+    public function allUsers()
+    {
+        $users = User::where('id', '!=', 1)->latest()->get();
+        return view('pages.users_tab.all_users', compact('users'));
     }
 
-    // Attach to teams
-    if ($request->filled('teams')) {
-        $user->teams()->sync($request->teams);
+
+
+
+    public function create()
+    {
+        $roles = Role::all();
+        $permissions = Permission::all();
+        $teams = Team::all();
+
+        return view('pages.users_tab.add_new_user', compact('roles', 'permissions', 'teams'));
     }
 
-    return redirect()->route('users.all')->with('success', 'User created successfully.');
-}
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'phone' => 'nullable|string|max:20',
+            'role' => 'required|string|exists:roles,name',
+            'permissions' => 'nullable|array',
+            'password' => 'required|string|min:6',
+            'teams' => 'nullable|array',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+            'status' => 1,
+        ]);
+
+        // Assign role
+        $user->assignRole($request->role);
+
+        // Assign permissions (optional extra permissions)
+        if ($request->filled('permissions')) {
+            $user->syncPermissions($request->permissions);
+        }
+
+        // Attach to teams
+        if ($request->filled('teams')) {
+            $user->teams()->sync($request->teams);
+        }
+
+        return redirect()->route('users.all')->with('success', 'User created successfully.');
+    }
 
 
     public function profile($id)
@@ -88,35 +88,46 @@ public function store(Request $request)
         $projects = Project::whereIn('id', $assignedProjects)->get();
 
         $counts = [
-        'all'        => $projects->count(),
-        'in_progress'=> $projects->where('status', 'In Progress')->count(),
-        'canceled'   => $projects->where('status', 'Canceled')->count(),
-        'completed'  => $projects->where('status', 'Completed')->count(),
+            'all'        => $projects->count(),
+            'in_progress' => $projects->where('status', 'In Progress')->count(),
+            'canceled'   => $projects->where('status', 'Canceled')->count(),
+            'completed'  => $projects->where('status', 'Completed')->count(),
         ];
-        
-        return view('pages.users_tab.user_profile', compact('user', 'projects', 'counts')); 
+        $counts['all'] = $counts['all'] ?? 0;
+        $counts['in_progress'] = $counts['in_progress'] ?? 0;
+        $counts['canceled'] = $counts['canceled'] ?? 0;
+        $counts['completed'] = $counts['completed'] ?? 0;
+        return view('pages.users_tab.user_profile', compact('user', 'projects', 'counts'));
     }
 
 
-     public function myprofile()
+    public function myprofile()
     {
         $user = Auth::user();
-        // Assuming projects are assigned to users via the 'work_done_by' field for simplicity.
-        // A better approach would be a proper relationship.
-        $projects = Project::where('work_done_by', $user->name)->get();
-        return view('pages.users_tab.user_profile', compact('user', 'projects')); 
+        $assignedProjects = AssignProject::where('user_id', $user->id)->pluck('project_id');
+        $projects = Project::whereIn('id', $assignedProjects)->get();
+
+        $counts = [
+            'all'        => $projects->count(),
+            'in_progress' => $projects->where('status', 'In Progress')->count(),
+            'canceled'   => $projects->where('status', 'Canceled')->count(),
+            'completed'  => $projects->where('status', 'Completed')->count(),
+        ];
+        $counts['all'] = $counts['all'] ?? 0;
+        $counts['in_progress'] = $counts['in_progress'] ?? 0;
+        $counts['canceled'] = $counts['canceled'] ?? 0;
+        $counts['completed'] = $counts['completed'] ?? 0;
+        return view('pages.users_tab.user_profile', compact('user', 'projects', 'counts'));
     }
 
 
-    public function toggleStatus($id,$slug)
+    public function toggleStatus($id, $slug)
     {
         $user = User::find($id);
-        if($slug == 'block')
-        {
-           $user->status = 3; 
-        }elseif($slug == 'unblock')
-        {
-             $user->status = 2; 
+        if ($slug == 'block') {
+            $user->status = 3;
+        } elseif ($slug == 'unblock') {
+            $user->status = 1;
         }
         $user->save();
         $message = 'User' . $slug . 'successfully.';
@@ -152,7 +163,7 @@ public function store(Request $request)
     }
 
     public function profile_update(Request $request, $id)
-    {  
+    {
         $user = User::findOrFail($id);
         $request->validate([
             'name'   => 'required|string|max:255',
@@ -178,5 +189,4 @@ public function store(Request $request)
 
         return redirect()->route('users.profile', $user->id)->with('success', 'Profile updated successfully.');
     }
-
 }

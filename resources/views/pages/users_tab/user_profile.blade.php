@@ -27,14 +27,13 @@
         </div>
         <button onclick="openModal()" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 self-start md:self-end">Edit</button>
     </div>
-
     <!-- Projects Tabs -->
     <div class="bg-white shadow rounded-lg p-6">
         <div class="flex space-x-4 mb-6">
             <button class="bg-gray-100 px-4 py-2 rounded-full text-sm flex items-center space-x-2">
                 <span>All Projects</span>
                 <span class="px-2 py-0.5 rounded-full text-xs font-semibold" style="background-color:#dfd1fa; color:rgb(101,32,240);">
-                    {{ $counts['all'] }}
+                    {{ $counts['all']  ?? '0' }}
                 </span>
             </button>
 
@@ -76,9 +75,11 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y">
-                    @forelse ($projects as $project)
+                    @forelse ($projects ?? [] as $project)
                     <tr>
-                        <td class="px-4 py-3">{{ $project->name }}</td>
+                        <td class="px-4 py-3">
+                            <a href="{{ route('projects.show', $project) }}" class=" bold text-indigo-600 hover:text-indigo-900">{{ $project->name }}</a>
+                        </td>
                         <td class="px-4 py-3"><span
                                 class="px-3 py-1 rounded {{ $project->status == 'Completed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-700' }}">{{ $project->status }}</span></td>
                         <td class="px-4 py-3">
@@ -97,9 +98,10 @@
                             </div>
                             <span class="text-gray-600 text-xs">{{ $project->progress }}%</span>
                         </td>
-                        <td class="px-4 py-3 text-blue-600"><a href="#">Website</a></td>
+                        <td class="px-4 py-3 text-blue-600"><a href="{{ $project->reference_website ?? '' }}" target="_blank">Website</a></td>
                         <td class="px-4 py-3">{{ \Carbon\Carbon::parse($project->end_date)->format('Y-m-d') }}</td>
                         <td class="px-4 py-3 space-x-2">
+                            <a href="{{ route('projects.show', $project) }}" class="text-indigo-600 hover:text-indigo-900"><i class="fa-solid fa-eye"></i></a>
                             <button onclick='openEditModal(@json($project))' class="text-blue-600">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
@@ -128,19 +130,19 @@
             <div class="mb-3">
                 <label class="block text-sm">Name</label>
                 <input type="text" name="name" value="{{ old('name', $user->name) }}"
-                       class="w-full border px-3 py-2 rounded">
+                    class="w-full border px-3 py-2 rounded">
             </div>
 
             <div class="mb-3">
                 <label class="block text-sm">Email</label>
                 <input type="email" name="email" value="{{ old('email', $user->email) }}"
-                       class="w-full border px-3 py-2 rounded">
+                    class="w-full border px-3 py-2 rounded">
             </div>
 
             <div class="mb-3">
                 <label class="block text-sm">Phone</label>
                 <input type="text" name="phone" value="{{ old('phone', $user->phone) }}"
-                       class="w-full border px-3 py-2 rounded">
+                    class="w-full border px-3 py-2 rounded">
             </div>
 
             <div class="mb-3">
@@ -165,7 +167,7 @@
     </div>
 </div>
 
-<div id="editProjectProgress" action="{{ route('projects.updateProgress', $project->id) }}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+<div id="editProjectProgress" action="{{  isset($project->id) ?  route('projects.updateProgress', $project->id) : '#' }}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl">
         <!-- Header -->
         <div class="px-6 py-4 border-b bg-gray-100 rounded-t-lg flex justify-between items-center">
@@ -197,14 +199,14 @@
                         <!-- Product -->
                         <td class="px-4 py-3">
                             <input type="text" id="editProjectName" name="name" readonly
-                                   class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700">
+                                class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700">
                         </td>
 
                         <!-- Status -->
                         <td class="px-4 py-3">
                             <select name="status" id="editProjectStatus"
-                                    class="w-full border rounded-lg px-3 py-2 text-gray-700">
-                                    <option value="Pending">Pending</option>
+                                class="w-full border rounded-lg px-3 py-2 text-gray-700">
+                                <option value="Pending">Pending</option>
 
                                 <option value="In Progress">In Progress</option>
                                 <option value="Completed">Completed</option>
@@ -227,7 +229,7 @@
                         <!-- Progress -->
                         <td class="px-4 py-3">
                             <select name="progress" id="editProjectProgressDropdown"
-                                    class="w-full border rounded-lg px-3 py-2 text-gray-700">
+                                class="w-full border rounded-lg px-3 py-2 text-gray-700">
                                 <option value="0">0%</option>
 
                                 <option value="25">25%</option>
@@ -245,7 +247,7 @@
                         <!-- Due Date -->
                         <td class="px-4 py-3">
                             <input type="text" id="editProjectDueDate" name="end_date" readonly
-                                   class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700">
+                                class="w-full border rounded-lg px-3 py-2 bg-gray-100 text-gray-700">
                         </td>
 
                         <!-- Actions -->
@@ -263,13 +265,13 @@
                     Description
                 </label>
                 <textarea id="editProjectDescription" name="description" rows="4"
-                          class="w-full border rounded-lg px-3 py-2 text-gray-700"></textarea>
+                    class="w-full border rounded-lg px-3 py-2 text-gray-700"></textarea>
             </div>
 
             <!-- Save button -->
             <div class="flex justify-end px-6 py-4 border-t">
                 <button type="submit"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                     Save
                 </button>
             </div>
@@ -289,38 +291,36 @@
 @push('scripts')
 
 <script>
-function toggleDescription() {
-    const desc = document.getElementById('descriptionWrapper');
-    desc.classList.toggle('hidden');
-}
+    function toggleDescription() {
+        const desc = document.getElementById('descriptionWrapper');
+        desc.classList.toggle('hidden');
+    }
 </script>
 <script>
-function openModal() {
-    document.getElementById('editProfileModal').classList.remove('hidden');
-}
+    function openModal() {
+        document.getElementById('editProfileModal').classList.remove('hidden');
+    }
 
 
-function closeModal() {
-    document.getElementById('editProfileModal').classList.add('hidden');
-}
+    function closeModal() {
+        document.getElementById('editProfileModal').classList.add('hidden');
+    }
 
-function openEditModal(project) {
-    console.log(project);
-    document.getElementById('editProjectName').value = project.name;
-    document.getElementById('editProjectStatus').value = project.status;
-    document.getElementById('editProjectProgressDropdown').value = project.progress;
-    document.getElementById('editProjectDueDate').value = project.end_date;
+    function openEditModal(project) {
+        console.log(project);
+        document.getElementById('editProjectName').value = project.name;
+        document.getElementById('editProjectStatus').value = project.status;
+        document.getElementById('editProjectProgressDropdown').value = project.progress;
+        document.getElementById('editProjectDueDate').value = project.end_date;
 
-    document.getElementById('editProjectForm').action = `/projects/${project.id}`;
+        document.getElementById('editProjectForm').action = `/projects/${project.id}`;
 
-    document.getElementById('editProjectProgress').classList.remove('hidden');
-}
+        document.getElementById('editProjectProgress').classList.remove('hidden');
+    }
 
-// Close modal
-function closeEditModal() {
-    document.getElementById('editProjectProgress').classList.add('hidden');
-}
-
+    // Close modal
+    function closeEditModal() {
+        document.getElementById('editProjectProgress').classList.add('hidden');
+    }
 </script>
 @endpush
-
