@@ -46,7 +46,7 @@
             </div>
 
             <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div class="h-2 bg-indigo-600 rounded-full" 
+                <div class="h-2 bg-indigo-600 rounded-full"
                     style="width: {{ $averageProgress }}%">
                 </div>
             </div>
@@ -67,26 +67,26 @@
         <!-- Credentials -->
         <div class="mb-6">
             <h3 class="font-semibold mb-3">Credentials</h3>
-                <div class="flex gap-6">
-                    <!-- Login -->
-                    <div class="w-1/2">
-                        <label class="block text-sm font-medium mb-1">Login</label>
-                        <input type="text" 
-                            value="{{ $credentials['login'] ?? '' }}" 
-                            readonly
-                            class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-100">
-                    </div>
+            <div class="flex gap-6">
+                <!-- Login -->
+                <div class="w-1/2">
+                    <label class="block text-sm font-medium mb-1">Login</label>
+                    <input type="text"
+                        value="{{ $credentials['login'] ?? '' }}"
+                        readonly
+                        class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-100">
+                </div>
 
-                    <!-- Password -->
-                    <div class="w-1/2">
-                        <label class="block text-sm font-medium mb-1">Password</label>
-                        <input type="password" 
-                            value="{{ $credentials['password'] ?? '' }}" 
-                            readonly
-                            class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-100">
-                    </div>
+                <!-- Password -->
+                <div class="w-1/2">
+                    <label class="block text-sm font-medium mb-1">Password</label>
+                    <input type="password"
+                        value="{{ $credentials['password'] ?? '' }}"
+                        readonly
+                        class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-100">
                 </div>
             </div>
+        </div>
 
 
         <!-- Buttons -->
@@ -97,40 +97,33 @@
             </button>
         </div>
 
-     <!-- Comments Section -->
-    <div class="mb-8">
-        <h3 class="font-semibold mb-3">Comments</h3>
-
-       <div id="commentsContainer" class="space-y-4 max-h-[400px] overflow-y-auto">
-    @foreach($comments as $comment)
-        <div class="flex {{ $comment->user_id == auth()->id() ? 'justify-end' : 'justify-start' }}">
-            <div class="max-w-xs px-4 py-2 rounded-lg 
+        <div class="mb-8">
+            <h3 class="font-semibold mb-3">Comments</h3>
+            <div id="commentsContainer" class="space-y-4 max-h-[400px] overflow-y-auto">
+                @foreach($comments as $comment)
+                <div class="flex {{ $comment->user_id == auth()->id() ? 'justify-end' : 'justify-start' }}">
+                    <div class="max-w-xs px-4 py-2 rounded-lg 
                 {{ $comment->user_id == auth()->id() 
                     ? 'bg-indigo-500 text-white rounded-br-none' 
                     : 'bg-gray-200 text-gray-800 rounded-bl-none' }}">
-                <p class="text-sm">{{ $comment->comment }}</p>
-                <span class="block text-xs mt-1 opacity-70">
-                    {{ $comment->user->name }} • {{ $comment->created_at->diffForHumans() }}
-                </span>
+                        <p class="text-sm">{{ $comment->comment }}</p>
+                        <span class="block text-xs mt-1 opacity-70">
+                            {{ $comment->user->name }} • {{ $comment->created_at->diffForHumans() }}
+                        </span>
+                    </div>
+                </div>
+                @endforeach
             </div>
         </div>
-    @endforeach
-</div>
 
-    </div>
-
-    <!-- Input -->
-    <form action="{{ route('projects.comments.store', $project->id) }}" method="POST" class="flex items-center border border-gray-300 rounded-lg px-4 py-2 w-full">
-        @csrf
-        <input type="text" name="comment" placeholder="Write a message..." 
-            class="flex-1 outline-none text-sm px-2 bg-transparent" required>
-        
-        <button type="submit" class="py-1 px-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition">
-            <i class="fa-solid fa-paper-plane text-lg"></i>
-        </button>
-    </form>
-
-        
+        <form id="comment-form" action="{{ route('projects.comments.store', $project->id) }}" method="POST" class="flex items-center border border-gray-300 rounded-lg px-4 py-2 w-full">
+            @csrf
+            <input type="text" name="comment" id="comment-input" placeholder="Write a message..."
+                class="flex-1 outline-none text-sm px-2 bg-transparent" required>
+            <button type="submit" class="py-1 px-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition">
+                <i class="fa-solid fa-paper-plane text-lg"></i>
+            </button>
+        </form>
     </div>
 </div>
 
@@ -177,9 +170,73 @@
         </form>
     </div>
 </div>
-
+<script src="https://js.pusher.com/8.0/pusher.min.js"></script>
 <script>
-        function openEditModal(id, website, login, password) {
+    const commentsContainer = document.getElementById('commentsContainer');
+    const commentForm = document.getElementById('comment-form');
+    const commentInput = document.getElementById('comment-input');
+    const projectId = "{{ $project->id }}";
+
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher("{{ config('broadcasting.connections.pusher.key') }}", {
+        cluster: "{{ config('broadcasting.connections.pusher.options.cluster') }}"
+    });
+
+    // Subscribe to the channel
+    const channel = pusher.subscribe('projects.' + projectId);
+
+    // Listen for the CommentSent event
+    channel.bind('App\\Events\\CommentSent', function(data) {
+        appendNewComment(data.comment);
+    });
+
+    // Handle form submission with the Fetch API
+    commentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        fetch(commentForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    comment: commentInput.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                commentInput.value = ''; // Clear input field
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+    // Helper function to create and add a new comment to the DOM
+    function appendNewComment(comment) {
+        const isSelf = comment.user_id == "{{ auth()->id() }}";
+        const alignment = isSelf ? 'justify-end' : 'justify-start';
+        const bubbleColor = isSelf ? 'bg-indigo-500 text-white rounded-br-none' : 'bg-gray-200 text-gray-800 rounded-bl-none';
+
+        const newCommentHtml = `
+            <div class="flex ${alignment}">
+                <div class="max-w-xs px-4 py-2 rounded-lg ${bubbleColor}">
+                    <p class="text-sm">${comment.comment}</p>
+                    <span class="block text-xs mt-1 opacity-70">
+                        ${comment.user.name} &bull; Just now
+                    </span>
+                </div>
+            </div>
+        `;
+        commentsContainer.insertAdjacentHTML('beforeend', newCommentHtml);
+
+        // This is the key change for scrolling
+        commentsContainer.scrollTop = commentsContainer.scrollHeight;
+    }
+</script>
+<script>
+    function openEditModal(id, website, login, password) {
         document.getElementById('editWebsite').value = website;
         document.getElementById('editLogin').value = login;
         document.getElementById('editPassword').value = password;
@@ -193,12 +250,11 @@
     function closeEditModal() {
         document.getElementById('editCredentialsModal').classList.add('hidden');
     }
-
 </script>
 
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         let commentsDiv = document.getElementById("commentsContainer");
         if (commentsDiv) {
             commentsDiv.scrollTop = commentsDiv.scrollHeight;

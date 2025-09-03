@@ -132,14 +132,14 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
                         </svg>
-                        Check In/Out
+                        Time & Attendance
                         <svg id="arrow-time" class="dropdown-arrow w-4 h-4 ml-auto transition-transform duration-200 @if(request()->routeIs('time.*')) rotated @endif" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
                     <div id="time-dropdown" class="pl-10 mt-1 space-y-1 @if(!request()->routeIs('time.*')) hidden @endif">
-                        <a href="{{ route('time.check_in') }}" class="sidebar-link block py-2 text-sm text-gray-300 hover:text-white @if(request()->routeIs('time.index')) bg-white/10 @endif">Check In</a>
-                        <a href="{{ route('time.check_out') }}" class="sidebar-link block py-2 text-sm text-gray-300 hover:text-white @if(request()->routeIs('permissions.index')) bg-white/10 @endif">Check Out</a>
+                        <a href="{{ route('time.dashboard') }}" class="sidebar-link block py-2 text-sm text-gray-300 hover:text-white @if(request()->routeIs('time.dashboard')) bg-white/10 @endif">Check In/Out</a>
+                        <a href="{{ route('time.leaves') }}" class="sidebar-link block py-2 text-sm text-gray-300 hover:text-white @if(request()->routeIs('time.leaves')) bg-white/10 @endif">Leaves</a>
                     </div>
                 </div>
 
