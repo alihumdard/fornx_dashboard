@@ -55,8 +55,12 @@ Route::middleware('auth')->group(function () {
   Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
 
   Route::post('/projects-assign', [ProjectController::class, 'assign'])->name('projects.assign');
-  Route::put('/projects/{project}', [ProjectController::class, 'updateProgress'])->name('projects.updateProgress');
+  Route::put('/assign-projects/{assignment}/update', [ProjectController::class, 'updateProgress'])->name('projects.updateProgress');
+  Route::put('/credential-projects/{project}', [ProjectController::class, 'updateCredentials'])->name('projects.updateCredentials');
+  Route::delete('/assign-projects/{assignment}', [ProjectController::class, 'assignProjectdestroy'])->name('assign-projects.destroy');
+Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment'])->name('projects.comments.store');
   Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+
   // Clients
   Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
   Route::get('/clients/create', [ClientController::class, 'create'])->name('clients.add');

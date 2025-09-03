@@ -12,6 +12,9 @@ class AssignProject extends Model
     protected $fillable = [
         'project_id',
         'user_id',
+        'status',
+        'progress',
+        'description',
     ];
 
     public function project()
