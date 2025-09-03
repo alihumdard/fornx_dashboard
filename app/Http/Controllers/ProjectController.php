@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\AssignProject;
+use App\Models\ProjectComment;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -89,8 +90,18 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
-        return view('pages.projects.show', compact('project'));
+        $assigned_projects = AssignProject::where('project_id', $project->id)->get();
+
+        $averageProgress = $assigned_projects->count() > 0 
+            ? intval($assigned_projects->avg('progress')) 
+            : 0;
+
+        $credentials = json_decode($project->credentials, true);
+        $comments = $project->comments()->with('user')->orderBy('created_at', 'asc')->get();
+
+        return view('pages.projects.show', compact('project', 'credentials', 'averageProgress', 'comments'));
     }
+
 
     public function edit(Project $project)
     {
@@ -121,28 +132,22 @@ class ProjectController extends Controller
         return redirect()->route('dashboard')->with('success', 'Project updated successfully.');
     }
 
-     public function updateProgress(Request $request , $project)
+     public function updateProgress(Request $request, AssignProject $assignment)
     {
-
+        
         $request->validate([
-            'name' => 'required|string|max:255',
-            'client_id' => 'required|exists:clients,id',
-            'country' => 'required|string|max:255',
-            'platform' => 'required|string|max:255',
-            'priority' => 'required|string|max:255',
-            'technology' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'earning' => 'required|numeric',
-            'paid_outside' => 'required|numeric',
-            'work_done_by' => 'required|string|max:255',
-            'status' => 'required|string|max:255',
-            'progress' => 'required|integer|min:0|max:100',
+        'status'   => 'required|string',
+        'progress' => 'required|integer|min:0|max:100',
+        'description' => 'nullable|string|max:1000',
         ]);
 
-        $project->update($request->all());
+        $assignment->update([
+            'status'   => $request->status,
+            'progress' => $request->progress,
+            'description' => $request->description,
+        ]);
 
-        return redirect()->route('dashboard')->with('success', 'Project updated successfully.');
+        return back()->with('success', 'Assignment updated successfully!');
     }
 
 
@@ -172,27 +177,78 @@ class ProjectController extends Controller
 
     public function assign(Request $request)
     {
-         $request->validate([
-        'user_id'    => 'required|exists:users,id',
-        'project_id' => 'required|exists:projects,id',
-            ]);
+        $request->validate([
+            'user_id'    => 'required|exists:users,id',
+            'project_id' => 'required|exists:projects,id',
+        ]);
 
-            $existingAssignment = AssignProject::where('project_id', $request->project_id)->first();
+        // Check if this exact user-project pair already exists
+        $existingAssignment = AssignProject::where('project_id', $request->project_id)
+            ->where('user_id', $request->user_id)
+            ->first();
 
-            if ($existingAssignment) {
-                $project = Project::find($request->project_id);
+        if ($existingAssignment) {
+            return back()->with('error', 'This project is already assigned to this user.');
+        }
 
-                if ($project && $project->status !== 'Completed') {
-                    return back()->with('error', 'This project is already assigned and not yet completed.');
-                }
-            }
+        // Otherwise create a new assignment
+        AssignProject::create([
+            'user_id'    => $request->user_id,
+            'project_id' => $request->project_id,
+        ]);
 
-            AssignProject::create([
-                'user_id'    => $request->user_id,
-                'project_id' => $request->project_id,
-            ]);
-
-        return redirect()->route('users.profile', $request->user_id)->with('success', 'Project assigned successfully!');
-
+        return redirect()->route('users.profile', $request->user_id)
+            ->with('success', 'Project assigned successfully!');
     }
+
+    public function assignProjectdestroy(AssignProject $assignment)
+    {
+        $userId = $assignment->user_id;
+
+        $assignment->delete();
+
+        return redirect()->route('users.profile', $userId)
+            ->with('success', 'Project assignment deleted successfully!');
+    }
+
+    public function updateCredentials(Request $request, Project $project)
+    {
+        $validated = $request->validate([
+            'reference_website' => 'nullable|string|max:255',
+            'login' => 'nullable|string|max:255',
+            'password' => 'nullable|string|max:255',
+        ]);
+
+        // Update credentials as JSON
+        $credentials = [
+            'login' => $validated['login'],
+            'password' => $validated['password'],
+        ];
+
+        $project->update([
+            'reference_website' => $validated['reference_website'],
+            'credentials' => json_encode($credentials),
+        ]);
+
+        return redirect()->back()->with('success', 'Credentials updated successfully.');
+    }
+
+    public function addComment(Request $request, Project $project)
+    {
+        $request->validate([
+            'comment' => 'required|string|max:1000',
+        ]);
+
+        ProjectComment::create([
+            'project_id' => $project->id,
+            'user_id'    => auth()->id(),
+            'comment'    => $request->comment,
+        ]);
+
+        return back()->with('success', 'Comment added!');
+    }
+
+
+
+
 }

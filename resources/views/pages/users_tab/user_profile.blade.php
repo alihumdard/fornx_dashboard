@@ -75,45 +75,74 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y">
-                    @forelse ($projects ?? [] as $project)
-                    <tr>
-                        <td class="px-4 py-3">
-                            <a href="{{ route('projects.show', $project) }}" class=" bold text-indigo-600 hover:text-indigo-900">{{ $project->name }}</a>
-                        </td>
-                        <td class="px-4 py-3"><span
-                                class="px-3 py-1 rounded {{ $project->status == 'Completed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-700' }}">{{ $project->status }}</span></td>
-                        <td class="px-4 py-3">
-                            <div class="flex -space-x-2">
-                                <img src="https://i.pravatar.cc/30?img=1"
-                                    class="w-8 h-8 rounded-full border-2 border-white">
-                                <img src="https://i.pravatar.cc/30?img=2"
-                                    class="w-8 h-8 rounded-full border-2 border-white">
-                                <span
-                                    class="w-8 h-8 flex items-center justify-center bg-purple-600 text-white rounded-full text-xs">+2</span>
-                            </div>
-                        </td>
-                        <td class="px-4 py-3">
-                            <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                <div class="bg-purple-500 h-2.5 rounded-full" style="width: {{ $project->progress }}%"></div>
-                            </div>
-                            <span class="text-gray-600 text-xs">{{ $project->progress }}%</span>
-                        </td>
-                        <td class="px-4 py-3 text-blue-600"><a href="{{ $project->reference_website ?? '' }}" target="_blank">Website</a></td>
-                        <td class="px-4 py-3">{{ \Carbon\Carbon::parse($project->end_date)->format('Y-m-d') }}</td>
-                        <td class="px-4 py-3 space-x-2">
-                            <a href="{{ route('projects.show', $project) }}" class="text-indigo-600 hover:text-indigo-900"><i class="fa-solid fa-eye"></i></a>
-                            <button onclick='openEditModal(@json($project))' class="text-blue-600">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button class="text-red-600"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
+                    @forelse ($assignedProjects ?? [] as $assignment)
+                        <tr>
+                            <td class="px-4 py-3">
+                                <a href="{{ route('projects.show', $assignment->project) }}" 
+                                class="bold text-indigo-600 hover:text-indigo-900">
+                                    {{ $assignment->project->name }}
+                                </a>
+                            </td>
+
+                            {{-- Status from assign_projects --}}
+                            <td class="px-4 py-3">
+                                <span class="px-3 py-1 rounded 
+                                    {{ $assignment->status == 'Completed' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-700' }}">
+                                    {{ $assignment->status }}
+                                </span>
+                            </td>
+
+                            {{-- User(s) (for now single user avatar, can expand to show all) --}}
+                            <td class="px-4 py-3">
+                                <div class="flex -space-x-2">
+                                    <img src="https://i.pravatar.cc/30?img={{ $assignment->user_id }}" 
+                                        class="w-8 h-8 rounded-full border-2 border-white">
+                                </div>
+                            </td>
+
+                            {{-- Progress from assign_projects --}}
+                            <td class="px-4 py-3">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-purple-500 h-2.5 rounded-full" 
+                                        style="width: {{ $assignment->progress }}%">
+                                    </div>
+                                </div>
+                                <span class="text-gray-600 text-xs">{{ $assignment->progress }}%</span>
+                            </td>
+
+                            {{-- Project reference website (from projects table) --}}
+                            <td class="px-4 py-3 text-blue-600">
+                                <a href="{{ $assignment->project->reference_website ?? '' }}" target="_blank">Website</a>
+                            </td>
+
+                            {{-- Due Date (from projects table) --}}
+                            <td class="px-4 py-3">
+                                {{ \Carbon\Carbon::parse($assignment->project->end_date)->format('Y-m-d') }}
+                            </td>
+
+                            <td class="px-4 py-3 space-x-2">
+                                <a href="{{ route('projects.show', $assignment->project) }}" class="text-indigo-600 hover:text-indigo-900">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <button onclick='openEditModal(@json($assignment))' class="text-blue-600">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                               <form action="{{ route('assign-projects.destroy', $assignment->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600" onclick="return confirm('Are you sure you want to delete this assignment?')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
                     @empty
-                    <tr>
-                        <td colspan="7" class="text-center py-4">No projects found for this user.</td>
-                    </tr>
+                        <tr>
+                            <td colspan="7" class="text-center py-4">No projects found for this user.</td>
+                        </tr>
                     @endforelse
                 </tbody>
+
             </table>
         </div>
     </div>
@@ -228,15 +257,15 @@
 
                         <!-- Progress -->
                         <td class="px-4 py-3">
-                            <select name="progress" id="editProjectProgressDropdown"
+                           <select name="progress" id="editProjectProgressDropdown"
                                 class="w-full border rounded-lg px-3 py-2 text-gray-700">
-                                <option value="0">0%</option>
-
-                                <option value="25">25%</option>
-                                <option value="50">50%</option>
-                                <option value="75">75%</option>
-                                <option value="100">Completed</option>
+                                <option value="0" {{ $assignment->progress == 0 ? 'selected' : '' }}>0%</option>
+                                <option value="25" {{ $assignment->progress == 25 ? 'selected' : '' }}>25%</option>
+                                <option value="50" {{ $assignment->progress == 50 ? 'selected' : '' }}>50%</option>
+                                <option value="75" {{ $assignment->progress == 75 ? 'selected' : '' }}>75%</option>
+                                <option value="100" {{ $assignment->progress == 100 ? 'selected' : '' }}>Completed</option>
                             </select>
+
                         </td>
 
                         <!-- Preview -->
@@ -306,15 +335,19 @@
         document.getElementById('editProfileModal').classList.add('hidden');
     }
 
-    function openEditModal(project) {
-        console.log(project);
-        document.getElementById('editProjectName').value = project.name;
-        document.getElementById('editProjectStatus').value = project.status;
-        document.getElementById('editProjectProgressDropdown').value = project.progress;
-        document.getElementById('editProjectDueDate').value = project.end_date;
+    function openEditModal(assignment) {
+        console.log(assignment);
 
-        document.getElementById('editProjectForm').action = `/projects/${project.id}`;
+        document.getElementById('editProjectName').value = assignment.project.name;
+        document.getElementById('editProjectDueDate').value = assignment.project.end_date;
+        document.getElementById('editProjectPreviewLink').href = assignment.project.reference_website || '#';
+        
 
+        document.getElementById('editProjectStatus').value = assignment.status;
+        document.getElementById('editProjectProgressDropdown').value = assignment.progress;
+        document.getElementById('editProjectDescription').value = assignment.description;
+
+        document.getElementById('editProjectForm').action = `/assign-projects/${assignment.id}/update`; 
         document.getElementById('editProjectProgress').classList.remove('hidden');
     }
 

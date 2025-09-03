@@ -84,21 +84,22 @@ class UserController extends Controller
     public function profile($id)
     {
         $user = User::findOrFail($id);
-        $assignedProjects = AssignProject::where('user_id', $user->id)->pluck('project_id');
-        $projects = Project::whereIn('id', $assignedProjects)->get();
 
+        // Get all assignments for this user along with project info
+        $assignedProjects = AssignProject::with('project')
+            ->where('user_id', $user->id)
+            ->get();
+
+        // Counts by status from assign_projects table
         $counts = [
-            'all'        => $projects->count(),
-            'in_progress' => $projects->where('status', 'In Progress')->count(),
-            'canceled'   => $projects->where('status', 'Canceled')->count(),
-            'completed'  => $projects->where('status', 'Completed')->count(),
+            'all'        => $assignedProjects->count(),
+            'in_progress' => $assignedProjects->where('status', 'In Progress')->count(),
+            'canceled'   => $assignedProjects->where('status', 'Canceled')->count(),
+            'completed'  => $assignedProjects->where('status', 'Completed')->count(),
         ];
-        $counts['all'] = $counts['all'] ?? 0;
-        $counts['in_progress'] = $counts['in_progress'] ?? 0;
-        $counts['canceled'] = $counts['canceled'] ?? 0;
-        $counts['completed'] = $counts['completed'] ?? 0;
-        return view('pages.users_tab.user_profile', compact('user', 'projects', 'counts'));
-    }
+
+        return view('pages.users_tab.user_profile', compact('user', 'assignedProjects', 'counts'));
+}
 
 
     public function myprofile()

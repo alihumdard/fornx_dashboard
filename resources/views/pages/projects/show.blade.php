@@ -11,7 +11,7 @@
     </div>
 
     <!-- Content -->
-    <div class="px-6">
+    <div class="px-6 mb-10">
         <!-- Project Info -->
         <div class="flex flex-col gap-2 mb-6">
             <p>Project Name:</p>
@@ -41,16 +41,21 @@
             <div class="flex justify-between mb-2">
                 <span class="font-medium">Progress</span>
                 <span class="font-semibold text-indigo-600">
-                    {{ isset($project->progress) && is_numeric($project->progress) ? intval($project->progress) : 0 }}%
+                    {{ $averageProgress }}%
                 </span>
             </div>
+
             <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div class="h-2 bg-indigo-600 rounded-full" style="width: {{ isset($project->progress) && is_numeric($project->progress) ? min(max(intval($project->progress),0),100) : 0 }}%"></div>
+                <div class="h-2 bg-indigo-600 rounded-full" 
+                    style="width: {{ $averageProgress }}%">
+                </div>
             </div>
+
             <p class="text-right text-sm text-gray-500 mt-2">
                 {{ \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($project->end_date), false) }} days remaining
             </p>
         </div>
+
 
         <!-- Website URL -->
         <div class="mb-6">
@@ -62,57 +67,143 @@
         <!-- Credentials -->
         <div class="mb-6">
             <h3 class="font-semibold mb-3">Credentials</h3>
-            <div class="flex gap-6">
-                <!-- Login -->
-                <div class="w-1/2">
-                    <label class="block text-sm font-medium mb-1">Login</label>
-                    <input type="text" placeholder="Enter login"
-                        class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                </div>
+                <div class="flex gap-6">
+                    <!-- Login -->
+                    <div class="w-1/2">
+                        <label class="block text-sm font-medium mb-1">Login</label>
+                        <input type="text" 
+                            value="{{ $credentials['login'] ?? '' }}" 
+                            readonly
+                            class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-100">
+                    </div>
 
-                <!-- Password -->
-                <div class="w-1/2">
-                    <label class="block text-sm font-medium mb-1">Password</label>
-                    <input type="password" placeholder="Enter password"
-                        class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    <!-- Password -->
+                    <div class="w-1/2">
+                        <label class="block text-sm font-medium mb-1">Password</label>
+                        <input type="password" 
+                            value="{{ $credentials['password'] ?? '' }}" 
+                            readonly
+                            class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-gray-100">
+                    </div>
                 </div>
             </div>
-        </div>
+
 
         <!-- Buttons -->
         <div class="flex justify-end gap-4 mb-8">
-            <button class="px-5 py-2 bg-gray-100 rounded-md text-gray-700 hover:bg-gray-200 font-medium">Cancel</button>
-            <button class="px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">Save</button>
+            <button class="px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium"
+                onclick="openEditModal({{ $project->id }}, '{{ $project->reference_website }}', '{{ $credentials['login'] ?? '' }}', '{{ $credentials['password'] ?? '' }}')">
+                Edit
+            </button>
         </div>
 
-        <!-- About Project -->
-        <div class="mb-5">
-            <h3 class="font-semibold mb-3">About Project</h3>
-            <div class="bg-gray-50 p-4 rounded-md text-sm leading-relaxed">
-                {{ $project->description ?? 'No description available.' }}
+     <!-- Comments Section -->
+    <div class="mb-8">
+        <h3 class="font-semibold mb-3">Comments</h3>
+
+       <div id="commentsContainer" class="space-y-4 max-h-[400px] overflow-y-auto">
+    @foreach($comments as $comment)
+        <div class="flex {{ $comment->user_id == auth()->id() ? 'justify-end' : 'justify-start' }}">
+            <div class="max-w-xs px-4 py-2 rounded-lg 
+                {{ $comment->user_id == auth()->id() 
+                    ? 'bg-indigo-500 text-white rounded-br-none' 
+                    : 'bg-gray-200 text-gray-800 rounded-bl-none' }}">
+                <p class="text-sm">{{ $comment->comment }}</p>
+                <span class="block text-xs mt-1 opacity-70">
+                    {{ $comment->user->name }} • {{ $comment->created_at->diffForHumans() }}
+                </span>
             </div>
         </div>
+    @endforeach
+</div>
 
-        <div class="flex items-center border border-gray-300 rounded-lg px-4 py-2 w-full mb-20">
-            <!-- Input -->
-            <input type="text" placeholder="Write a message..."
-                class="flex-1 outline-none text-sm px-2 bg-transparent" />
+    </div>
 
-            <!-- Icons -->
-            <div class="flex items-center gap-3 text-gray-500">
-                <button class="py-1 px-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition">
-                    <i class="fa-solid fa-paper-plane text-lg"></i>
-                </button>
+    <!-- Input -->
+    <form action="{{ route('projects.comments.store', $project->id) }}" method="POST" class="flex items-center border border-gray-300 rounded-lg px-4 py-2 w-full">
+        @csrf
+        <input type="text" name="comment" placeholder="Write a message..." 
+            class="flex-1 outline-none text-sm px-2 bg-transparent" required>
+        
+        <button type="submit" class="py-1 px-2 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition">
+            <i class="fa-solid fa-paper-plane text-lg"></i>
+        </button>
+    </form>
 
-
-                <button class="hover:text-indigo-500 transition">
-                    <i class="fa-solid fa-paperclip text-lg"></i>
-                </button>
-            </div>
-        </div>
         
     </div>
 </div>
 
+<div id="editCredentialsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+        <h2 class="text-xl font-bold mb-4">Edit Credentials</h2>
+
+        <form id="editCredentialsForm" method="POST">
+            @csrf
+            @method('PUT')
+
+            <!-- Website -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Website URL</label>
+                <input type="text" name="reference_website" id="editWebsite"
+                    class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+
+            <!-- Login -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Login</label>
+                <input type="text" name="login" id="editLogin"
+                    class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+
+            <!-- Password -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <input type="text" name="password" id="editPassword"
+                    class="w-full px-4 py-2 border rounded-md text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end gap-4">
+                <button type="button" onclick="closeEditModal()"
+                    class="px-5 py-2 bg-gray-100 rounded-md text-gray-700 hover:bg-gray-200 font-medium">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-5 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">
+                    Update
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+        function openEditModal(id, website, login, password) {
+        document.getElementById('editWebsite').value = website;
+        document.getElementById('editLogin').value = login;
+        document.getElementById('editPassword').value = password;
+
+        // Set form action
+        document.getElementById('editCredentialsForm').action = `/credential-projects/${id}`;
+
+        document.getElementById('editCredentialsModal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editCredentialsModal').classList.add('hidden');
+    }
+
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let commentsDiv = document.getElementById("commentsContainer");
+        if (commentsDiv) {
+            commentsDiv.scrollTop = commentsDiv.scrollHeight;
+        }
+    });
+</script>
 
 @endsection
