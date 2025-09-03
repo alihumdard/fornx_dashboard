@@ -99,7 +99,10 @@ Route::post('/projects/{project}/comments', [ProjectController::class, 'addComme
   Route::get('/invoices/client', [InvoiceController::class, 'client'])->name('invoices.client');
   Route::get('/invoices/payment', [InvoiceController::class, 'payment'])->name('invoices.payment');
   Route::get('/invoices/users', [InvoiceController::class, 'users'])->name('invoices.users');
+  Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
 
+
+Route::post('/invoices/send', [InvoiceController::class, 'sendInvoice'])->name('invoices.send');
 
   // Chat Module Routes
   Route::get('/chat', [ChatController::class, 'show'])->name('chat');

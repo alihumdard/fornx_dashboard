@@ -30,6 +30,7 @@ class Invoice extends Model
         'invoice_template_id',
         'user_id',
         'status',
+        'total_amount',
     ];
 
     /**
@@ -56,4 +57,10 @@ class Invoice extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    public function items()
+    {
+        return $this->hasMany(InvoiceItem::class);
+    }
+
 }
