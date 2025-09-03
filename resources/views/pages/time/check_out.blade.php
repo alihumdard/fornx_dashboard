@@ -1,27 +1,27 @@
 @extends('layouts.main')
 @section('title', 'Time Track')
 <style>
-/* Custom scrollbar for the Recent Activity section */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-}
+    /* Custom scrollbar for the Recent Activity section */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
 
-.custom-scrollbar::-webkit-scrollbar-track {
-    background-color: #f1f5f9;
-    /* slate-100 */
-    border-radius: 10px;
-}
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background-color: #f1f5f9;
+        /* slate-100 */
+        border-radius: 10px;
+    }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #94a3b8;
-    /* slate-400 */
-    border-radius: 10px;
-}
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #94a3b8;
+        /* slate-400 */
+        border-radius: 10px;
+    }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: #64748b;
-    /* slate-500 */
-}
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background-color: #64748b;
+        /* slate-500 */
+    }
 </style>
 @section('content')
 <div class="container mx-auto max-w-7xl flex flex-col lg:flex-row gap-6">
@@ -342,55 +342,55 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const modal = document.getElementById('leave-modal');
-    const openModalBtn = document.getElementById('request-leave-btn');
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    const startDateInput = document.getElementById('start-date');
-    const endDateInput = document.getElementById('end-date');
-    const durationDisplay = document.getElementById('duration-display');
-    const durationDaysSpan = document.getElementById('duration-days');
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('leave-modal');
+        const openModalBtn = document.getElementById('request-leave-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const durationDisplay = document.getElementById('duration-display');
+        const durationDaysSpan = document.getElementById('duration-days');
 
-    // Function to open the modal
-    openModalBtn.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    });
+        // Function to open the modal
+        openModalBtn.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        });
 
-    // Function to close the modal
-    closeModalBtn.addEventListener('click', () => {
-        modal.classList.remove('flex');
-        modal.classList.add('hidden');
-    });
-
-    // Close the modal when clicking outside of it
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
+        // Function to close the modal
+        closeModalBtn.addEventListener('click', () => {
             modal.classList.remove('flex');
             modal.classList.add('hidden');
-        }
+        });
+
+        // Close the modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }
+        });
+
+        // Function to calculate and display duration
+        const calculateDuration = () => {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+
+            if (startDateInput.value && endDateInput.value && startDate <= endDate) {
+                const timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
+                const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include the end day
+
+                durationDaysSpan.textContent = `${dayDiff} days`;
+                durationDisplay.classList.remove('hidden');
+                durationDisplay.classList.add('flex');
+            } else {
+                durationDisplay.classList.add('hidden');
+                durationDisplay.classList.remove('flex');
+            }
+        };
+
+        startDateInput.addEventListener('change', calculateDuration);
+        endDateInput.addEventListener('change', calculateDuration);
     });
-
-    // Function to calculate and display duration
-    const calculateDuration = () => {
-        const startDate = new Date(startDateInput.value);
-        const endDate = new Date(endDateInput.value);
-
-        if (startDateInput.value && endDateInput.value && startDate <= endDate) {
-            const timeDiff = Math.abs(endDate.getTime() - startDate.getTime());
-            const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // +1 to include the end day
-
-            durationDaysSpan.textContent = `${dayDiff} days`;
-            durationDisplay.classList.remove('hidden');
-            durationDisplay.classList.add('flex');
-        } else {
-            durationDisplay.classList.add('hidden');
-            durationDisplay.classList.remove('flex');
-        }
-    };
-
-    startDateInput.addEventListener('change', calculateDuration);
-    endDateInput.addEventListener('change', calculateDuration);
-});
 </script>
 @endpush
