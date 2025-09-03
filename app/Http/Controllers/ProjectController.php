@@ -154,20 +154,20 @@ class ProjectController extends Controller
 
     public function progress1()
     {
-        $projects = Project::all();
-        return view('pages.project_progress.project_progress_1', compact('projects'));
+        $project = Project::find(1);
+        return view('pages.project_progress.project_progress_1', compact('project'));
     }
 
     public function progress2()
     {
-        $projects = Project::all();
-        return view('pages.project_progress.project_progress_2', compact('projects'));
+        $project = Project::find(1);
+        return view('pages.project_progress.project_progress_2', compact('project'));
     }
 
     public function progress3()
     {
-        $projects = Project::all();
-        return view('pages.project_progress.project_progress_3', compact('projects'));
+        $project = Project::find(1);
+        return view('pages.project_progress.project_progress_3', compact('project'));
     }
 
     public function assign(Request $request)

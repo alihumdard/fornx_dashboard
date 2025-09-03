@@ -117,54 +117,54 @@
 
 @push('scripts')
 <script>
-function loadMembers(teamId) {
-    fetch(`/teams/${teamId}/members`)
-        .then(res => res.json())
-        .then(data => {
-            const tbody = document.getElementById('membersTable');
-            tbody.innerHTML = '';
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-sm text-gray-500">No members in this team.</td></tr>';
-            } else {
-                data.forEach(member => {
-                    tbody.innerHTML += `
+    function loadMembers(teamId) {
+        fetch(`/teams/${teamId}/members`)
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('membersTable');
+                tbody.innerHTML = '';
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-sm text-gray-500">No members in this team.</td></tr>';
+                } else {
+                    data.forEach(member => {
+                        tbody.innerHTML += `
                         <tr>
                             <td class="px-6 py-4 text-sm text-gray-900">${member.name}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">${member.email}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">${member.role ?? ''}</td>
                         </tr>`;
-                });
-            }
-        });
-}
+                    });
+                }
+            });
+    }
 
-const modal = document.getElementById('teamModal');
-const form = document.getElementById('teamForm');
-const methodInput = document.getElementById('formMethod');
-const modalTitle = document.getElementById('modalTitle');
-const teamNameInput = document.getElementById('teamName');
-const leaderSelect = document.getElementById('leader');
+    const modal = document.getElementById('teamModal');
+    const form = document.getElementById('teamForm');
+    const methodInput = document.getElementById('formMethod');
+    const modalTitle = document.getElementById('modalTitle');
+    const teamNameInput = document.getElementById('teamName');
+    const leaderSelect = document.getElementById('leader');
 
-document.getElementById('createTeamBtn').addEventListener('click', () => {
-    form.action = "{{ route('teams.store') }}";
-    methodInput.value = "POST";
-    modalTitle.innerText = "Create Team";
-    teamNameInput.value = "";
-    leaderSelect.value = "";
-    modal.classList.remove('hidden');
-});
+    document.getElementById('createTeamBtn').addEventListener('click', () => {
+        form.action = "{{ route('teams.store') }}";
+        methodInput.value = "POST";
+        modalTitle.innerText = "Create Team";
+        teamNameInput.value = "";
+        leaderSelect.value = "";
+        modal.classList.remove('hidden');
+    });
 
-function editTeam(id, name, leaderId) {
-    form.action = `/teams/${id}`;
-    methodInput.value = "PUT";
-    modalTitle.innerText = "Edit Team";
-    teamNameInput.value = name;
-    leaderSelect.value = leaderId ?? "";
-    modal.classList.remove('hidden');
-}
+    function editTeam(id, name, leaderId) {
+        form.action = `/teams/${id}`;
+        methodInput.value = "PUT";
+        modalTitle.innerText = "Edit Team";
+        teamNameInput.value = name;
+        leaderSelect.value = leaderId ?? "";
+        modal.classList.remove('hidden');
+    }
 
-function closeModal() {
-    modal.classList.add('hidden');
-}
+    function closeModal() {
+        modal.classList.add('hidden');
+    }
 </script>
 @endpush

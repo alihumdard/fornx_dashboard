@@ -1,31 +1,38 @@
 @extends('layouts.main')
 @section('title', 'Dashboard')
-
 <style>
-.slider-container {
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-}
-.slider-track {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-}
-.slider-item {
-    min-width: 100%;
-    flex-shrink: 0;
-}
-.slider-item img {
-    width: 100%;
-    height: auto; /* maintain aspect ratio */
-    max-height: 85vh; /* prevent overflow */
-    object-fit: contain; /* image poora visible ho */
-}
-@media (max-width: 640px) {
-    .slider-item img {
-        max-height: 70vh; /* mobile ke liye thoda adjust */
+    .slider-container {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
     }
-}
+
+    .slider-track {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+    }
+
+    .slider-item {
+        min-width: 100%;
+        flex-shrink: 0;
+    }
+
+    .slider-item img {
+        width: 100%;
+        height: auto;
+        /* maintain aspect ratio */
+        max-height: 85vh;
+        /* prevent overflow */
+        object-fit: contain;
+        /* image poora visible ho */
+    }
+
+    @media (max-width: 640px) {
+        .slider-item img {
+            max-height: 70vh;
+            /* mobile ke liye thoda adjust */
+        }
+    }
 </style>
 
 @section('content')
@@ -69,10 +76,10 @@
     </div>
 
     <!-- Proceed Button -->
-    <button
+    <a href="{{ route('invoices.information') }}"
         class="mt-6 px-6 py-2 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition duration-300">
         Proceed
-    </button>
+    </a>
 
 </div>
 
@@ -80,41 +87,41 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const sliderTrack = document.getElementById('sliderTrack');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const currentSlideEl = document.getElementById('currentSlide');
-    const totalSlidesEl = document.getElementById('totalSlides');
+    document.addEventListener('DOMContentLoaded', function() {
+        const sliderTrack = document.getElementById('sliderTrack');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideEl = document.getElementById('currentSlide');
+        const totalSlidesEl = document.getElementById('totalSlides');
 
-    let currentSlide = 0;
-    const totalSlides = document.querySelectorAll('.slider-item').length;
+        let currentSlide = 0;
+        const totalSlides = document.querySelectorAll('.slider-item').length;
 
-    totalSlidesEl.textContent = totalSlides;
+        totalSlidesEl.textContent = totalSlides;
 
-    function updateSlider() {
-        sliderTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
-        currentSlideEl.textContent = currentSlide + 1;
+        function updateSlider() {
+            sliderTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+            currentSlideEl.textContent = currentSlide + 1;
 
-        prevBtn.disabled = currentSlide === 0;
-        nextBtn.disabled = currentSlide === totalSlides - 1;
-    }
-
-    prevBtn.addEventListener('click', function() {
-        if (currentSlide > 0) {
-            currentSlide--;
-            updateSlider();
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
         }
-    });
 
-    nextBtn.addEventListener('click', function() {
-        if (currentSlide < totalSlides - 1) {
-            currentSlide++;
-            updateSlider();
-        }
-    });
+        prevBtn.addEventListener('click', function() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlider();
+            }
+        });
 
-    updateSlider();
-});
+        nextBtn.addEventListener('click', function() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlider();
+            }
+        });
+
+        updateSlider();
+    });
 </script>
 @endpush
