@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\User;
+use App\Models\AssignProject;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -11,7 +13,8 @@ class ProjectController extends Controller
     public function index()
     {
         $projects = Project::with('client')->get();
-        return view('pages.projects.index', compact('projects'));
+        $users = User::all();
+        return view('pages.projects.index', compact('projects' , 'users'));
     }
 
     public function create()
@@ -118,6 +121,31 @@ class ProjectController extends Controller
         return redirect()->route('dashboard')->with('success', 'Project updated successfully.');
     }
 
+     public function updateProgress(Request $request , $project)
+    {
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'client_id' => 'required|exists:clients,id',
+            'country' => 'required|string|max:255',
+            'platform' => 'required|string|max:255',
+            'priority' => 'required|string|max:255',
+            'technology' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'earning' => 'required|numeric',
+            'paid_outside' => 'required|numeric',
+            'work_done_by' => 'required|string|max:255',
+            'status' => 'required|string|max:255',
+            'progress' => 'required|integer|min:0|max:100',
+        ]);
+
+        $project->update($request->all());
+
+        return redirect()->route('dashboard')->with('success', 'Project updated successfully.');
+    }
+
+
     public function destroy(Project $project)
     {
         $project->delete();
@@ -126,19 +154,45 @@ class ProjectController extends Controller
 
     public function progress1()
     {
-        $projects = Project::all();
-        return view('pages.project_progress.project_progress_1', compact('projects'));
+        $project = Project::find(1);
+        return view('pages.project_progress.project_progress_1', compact('project'));
     }
 
     public function progress2()
     {
-        $projects = Project::all();
-        return view('pages.project_progress.project_progress_2', compact('projects'));
+        $project = Project::find(1);
+        return view('pages.project_progress.project_progress_2', compact('project'));
     }
 
     public function progress3()
     {
-        $projects = Project::all();
-        return view('pages.project_progress.project_progress_3', compact('projects'));
+        $project = Project::find(1);
+        return view('pages.project_progress.project_progress_3', compact('project'));
+    }
+
+    public function assign(Request $request)
+    {
+         $request->validate([
+        'user_id'    => 'required|exists:users,id',
+        'project_id' => 'required|exists:projects,id',
+            ]);
+
+            $existingAssignment = AssignProject::where('project_id', $request->project_id)->first();
+
+            if ($existingAssignment) {
+                $project = Project::find($request->project_id);
+
+                if ($project && $project->status !== 'Completed') {
+                    return back()->with('error', 'This project is already assigned and not yet completed.');
+                }
+            }
+
+            AssignProject::create([
+                'user_id'    => $request->user_id,
+                'project_id' => $request->project_id,
+            ]);
+
+        return redirect()->route('users.profile', $request->user_id)->with('success', 'Project assigned successfully!');
+
     }
 }

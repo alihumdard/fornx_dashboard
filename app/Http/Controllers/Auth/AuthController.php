@@ -25,11 +25,29 @@ class AuthController extends Controller
                 //
             }
 
-            return view('pages.dashboard');
+            return view('pages.dashboards.admin_dashboard');
         } else {
             return view('pages.auth.login');
         }
     }
+
+    public function hr_dashboard()
+    {
+        $user = auth()->user() ?? '';
+
+        if ($user ?? '') {
+            if ($user->role == 'Admin') {
+                //
+            } else {
+                //
+            }
+
+            return view('pages.dashboards.hr_dashboard');
+        } else {
+            return view('pages.auth.login');
+        }
+    }
+
 
     public function showLoginForm()
     {
@@ -60,10 +78,10 @@ class AuthController extends Controller
             }
 
             if ($loggedInUser) {
-                 $id = Auth::user()->id;
-        $user = User::find($id);
-        $user->status = 1;
-        $user->save();
+                $id = Auth::user()->id;
+                $user = User::find($id);
+                $user->status = 1;
+                $user->save();
                 return redirect()->route('dashboard');
             }
 

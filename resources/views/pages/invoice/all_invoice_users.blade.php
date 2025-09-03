@@ -63,7 +63,7 @@
                             </button>
                         </td>
                     </tr>
-                     <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50 transition">
                         <td class="px-4 py-3 font-medium text-gray-800">Title</td>
                         <td class="px-4 py-3 text-gray-600">2024-04-05</td>
                         <td class="px-4 py-3 text-gray-600">2024-09-07</td>
@@ -80,7 +80,7 @@
                             </button>
                         </td>
                     </tr>
-                     <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50 transition">
                         <td class="px-4 py-3 font-medium text-gray-800">Title</td>
                         <td class="px-4 py-3 text-gray-600">2024-04-05</td>
                         <td class="px-4 py-3 text-gray-600">2024-09-07</td>
@@ -97,7 +97,7 @@
                             </button>
                         </td>
                     </tr>
-                     <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50 transition">
                         <td class="px-4 py-3 font-medium text-gray-800">Title</td>
                         <td class="px-4 py-3 text-gray-600">2024-04-05</td>
                         <td class="px-4 py-3 text-gray-600">2024-09-07</td>
@@ -114,7 +114,7 @@
                             </button>
                         </td>
                     </tr>
-                     <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50 transition">
                         <td class="px-4 py-3 font-medium text-gray-800">Title</td>
                         <td class="px-4 py-3 text-gray-600">2024-04-05</td>
                         <td class="px-4 py-3 text-gray-600">2024-09-07</td>
@@ -131,7 +131,7 @@
                             </button>
                         </td>
                     </tr>
-                     <tr class="hover:bg-gray-50 transition">
+                    <tr class="hover:bg-gray-50 transition">
                         <td class="px-4 py-3 font-medium text-gray-800">Title</td>
                         <td class="px-4 py-3 text-gray-600">2024-04-05</td>
                         <td class="px-4 py-3 text-gray-600">2024-09-07</td>
@@ -281,10 +281,10 @@
                                 class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg shadow-sm transition">
                                 Cancel
                             </button>
-                            <button
+                            <a href="{{ route('invoices.payment') }}"
                                 class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition">
                                 Pay Now
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -314,13 +314,13 @@
 @push('scripts')
 <!-- JS -->
 <script>
-function openInvoice() {
-    document.getElementById("invoiceModal").classList.remove("hidden");
-}
+    function openInvoice() {
+        document.getElementById("invoiceModal").classList.remove("hidden");
+    }
 
-function closeInvoice() {
-    document.getElementById("invoiceModal").classList.add("hidden");
-}
+    function closeInvoice() {
+        document.getElementById("invoiceModal").classList.add("hidden");
+    }
 </script>
 
 @endpush

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Team;
@@ -7,6 +8,26 @@ use Illuminate\Http\Request;
 
 class TeamController extends Controller
 {
+    public function dashboard()
+    {
+        $teams = Team::all();
+        $allMembers = User::whereHas('teams')->get();
+        $leaders = User::all();
+
+        // Data for top cards
+        $teamCounts = [];
+        $teamNames = ['Web Developers', 'App Developer', 'WordPress Developer', 'Designer'];
+
+        foreach ($teams as $name) {
+            $name->leader = User::where('id', $name->user_id)->first();
+        }
+        foreach ($teamNames as $name) {
+            $team = Team::where('name', $name)->first();
+            $teamCounts[$name] = $team ? $team->users->count() : 0;
+        }
+        return view('pages.team.dashobard', compact('teams', 'allMembers', 'teamCounts', 'leaders'));
+    }
+
     public function index()
     {
         $teams = Team::all();
@@ -18,40 +39,21 @@ class TeamController extends Controller
         $teamNames = ['Web Developers', 'App Developer', 'WordPress Developer', 'Designer'];
 
         foreach ($teams as $name) {
-           $name->leader = User::where('id',$name->user_id)->first();
+            $name->leader = User::where('id', $name->user_id)->first();
         }
-          foreach ($teamNames as $name) {
+        foreach ($teamNames as $name) {
             $team = Team::where('name', $name)->first();
             $teamCounts[$name] = $team ? $team->users->count() : 0;
         }
-        return view('pages.users_tab.user_team', compact('teams', 'allMembers', 'teamCounts', 'leaders'));
+        return view('pages.team.manage', compact('teams', 'allMembers', 'teamCounts', 'leaders'));
     }
-      public function indexs()
+
+
+    public function members($teamId)
     {
-        $teams = Team::all();
-        $allMembers = User::whereHas('teams')->get();
-        $leaders = User::all();
-
-        // Data for top cards
-        $teamCounts = [];
-        $teamNames = ['Web Developers', 'App Developer', 'WordPress Developer', 'Designer'];
-
-        foreach ($teams as $name) {
-           $name->leader = User::where('id',$name->user_id)->first();
-        }
-          foreach ($teamNames as $name) {
-            $team = Team::where('name', $name)->first();
-            $teamCounts[$name] = $team ? $team->users->count() : 0;
-        }
-        return view('pages.users_tab.user_teams', compact('teams', 'allMembers', 'teamCounts', 'leaders'));
+        $team = Team::with('users')->findOrFail($teamId);
+        return response()->json($team->users); // return members as JSON
     }
- 
-
-public function members($teamId)
-{
-    $team = Team::with('users')->findOrFail($teamId);
-    return response()->json($team->users); // return members as JSON
-}
 
 
     public function store(Request $request)
