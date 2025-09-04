@@ -9,7 +9,6 @@
         <h1 class="text-2xl font-bold text-gray-800">Profile</h1>
         <p class="text-gray-600">Manage your company information</p>
     </div>
-
     <!-- Company Information Card -->
     <form action="{{ route('invoices.store') }}" method="POST">
         @csrf
@@ -153,11 +152,13 @@
                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                     @enderror
                 </div>
-                <div>
+               <div>
                     <label class="block text-sm font-medium text-gray-700">Invoice of USD</label>
                     <input type="text" name="amount" placeholder="Amount"
                         value="{{ old('amount') }}"
-                        class="w-full mt-1 rounded-md border text-sm px-3 py-2 focus:border-blue-500 focus:ring-blue-500 @error('amount') border-red-500 @enderror">
+                        readonly
+                        class="w-full mt-1 rounded-md border text-sm px-3 py-2 bg-gray-100 focus:border-blue-500 focus:ring-blue-500 @error('amount') border-red-500 @enderror">
+
                     @error('amount')
                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
                     @enderror
@@ -192,53 +193,70 @@
             </div>
 
             <!-- Hidden fields for saving data -->
-            <input type="hidden" name="invoice_template_id" value="1">
+            <input type="hidden" name="invoice_template_id" value="{{ $invoiceDetails['template'] }}">
             <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
             <input type="hidden" name="status" value="draft">
 
             <!-- Item Table -->
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-600 border-t border-gray-200">
+               <table class="w-full text-sm text-left text-gray-600 border-t border-gray-200" id="invoiceTable">
                     <thead class="bg-gray-50 text-gray-700">
                         <tr>
                             <th class="py-2 px-3 font-medium">Item Detail</th>
                             <th class="py-2 px-3 font-medium">Qty</th>
                             <th class="py-2 px-3 font-medium">Rate</th>
                             <th class="py-2 px-3 font-medium">Amount</th>
+                            <th class="py-2 px-3 font-medium text-center">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="invoiceBody">
                         <tr class="border-t hover:bg-gray-50">
-                            <td class="py-2 px-3">Service name</td>
-                            <td class="py-2 px-3">1</td>
-                            <td class="py-2 px-3">$3,000.0</td>
-                            <td class="py-2 px-3">$3,000.0</td>
-                        </tr>
-                        <tr class="border-t hover:bg-gray-50">
-                            <td class="py-2 px-3">Service name</td>
-                            <td class="py-2 px-3">1</td>
-                            <td class="py-2 px-3">$3,000.0</td>
-                            <td class="py-2 px-3">$3,000.0</td>
+                            <td class="py-2 px-3">
+                                <input type="text" name="items[0][name]" class="w-full border rounded px-2 py-1" placeholder="Service name">
+                            </td>
+                            <td class="py-2 px-3">
+                                <input type="number" name="items[0][qty]" value="1" min="1" class="w-20 border rounded px-2 py-1 qty">
+                            </td>
+                            <td class="py-2 px-3">
+                                <input type="number" name="items[0][rate]" value="0" step="0.01" class="w-24 border rounded px-2 py-1 rate">
+                            </td>
+                            <td class="py-2 px-3">
+                                <input type="text" name="items[0][amount]" value="0" readonly class="w-28 border rounded px-2 py-1 amount bg-gray-100">
+                            </td>
+                            <td class="py-2 px-3 text-center">
+                                <button type="button"
+                                    class="addRow inline-flex items-center justify-center w-10 h-10 bg-green-500 text-white rounded-full shadow hover:bg-green-600 border border-green-600 text-xl font-bold">
+                                    +
+                                </button>
+                                <button type="button"
+                                    class="removeRow inline-flex items-center justify-center w-10 h-10 bg-red-500 text-white rounded-full shadow hover:bg-red-600 border border-red-600 text-xl font-bold ml-2">
+                                    –
+                                </button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
 
-                <!-- Totals -->
+
+
+               <!-- Totals -->
                 <div class="flex flex-col items-end mt-4 space-y-1 text-sm text-gray-700">
                     <div class="flex justify-between w-1/3">
                         <span>Subtotal</span>
-                        <span>$3,000.0</span>
+                        <span id="subtotal">$0.00</span>
                     </div>
                     <div class="flex justify-between w-1/3">
-                        <span>Tax(10%)</span>
-                        <span>$3,000.0</span>
+                        <span>Tax (10%)</span>
+                        <span id="tax">$0.00</span>
                     </div>
                     <div class="flex justify-between w-1/3 font-semibold border-t pt-2">
                         <span>Total</span>
-                        <span>$3,000.0</span>
+                        <span id="total">$0.00</span>
                     </div>
                 </div>
+
             </div>
+                <input type="hidden" name="calculated_total" id="calculated_total">
 
             <!-- Footer -->
             <div class="mt-6 text-sm text-gray-700">
@@ -276,4 +294,121 @@
         }
     });
 </script>
+
+{{-- <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tbody = document.getElementById("invoiceBody");
+
+        function calculateAmount(row) {
+            const qty = row.querySelector(".qty").value || 0;
+            const rate = row.querySelector(".rate").value || 0;
+            row.querySelector(".amount").value = (qty * rate).toFixed(2);
+        }
+
+        function updateRowIndexes() {
+            tbody.querySelectorAll("tr").forEach((row, index) => {
+                row.querySelectorAll("input").forEach(input => {
+                    input.name = input.name.replace(/\[\d+\]/, `[${index}]`);
+                });
+            });
+        }
+
+        tbody.addEventListener("input", function (e) {
+            if (e.target.classList.contains("qty") || e.target.classList.contains("rate")) {
+                calculateAmount(e.target.closest("tr"));
+            }
+        });
+
+        tbody.addEventListener("click", function (e) {
+            if (e.target.classList.contains("addRow")) {
+                const newRow = tbody.rows[0].cloneNode(true);
+                newRow.querySelectorAll("input").forEach(input => {
+                    if (input.classList.contains("qty")) input.value = 1;
+                    else if (input.classList.contains("rate") || input.classList.contains("amount")) input.value = 0;
+                    else input.value = "";
+                });
+                tbody.appendChild(newRow);
+                updateRowIndexes();
+            }
+
+            if (e.target.classList.contains("removeRow")) {
+                if (tbody.rows.length > 1) {
+                    e.target.closest("tr").remove();
+                    updateRowIndexes();
+                }
+            }
+        });
+
+        calculateAmount(tbody.rows[0]);
+    });
+</script> --}}
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tbody = document.getElementById("invoiceBody");
+    const amountInput = document.querySelector("input[name='amount']");
+    const subtotalEl = document.getElementById("subtotal");
+    const taxEl = document.getElementById("tax");
+    const totalEl = document.getElementById("total");
+    const totalHidden = document.getElementById("calculated_total");
+
+    function calculateAmount(row) {
+        const qty = parseFloat(row.querySelector(".qty").value) || 0;
+        const rate = parseFloat(row.querySelector(".rate").value) || 0;
+        row.querySelector(".amount").value = (qty * rate).toFixed(2);
+    }
+
+    function calculateTotals() {
+        let subtotal = 0;
+        tbody.querySelectorAll(".amount").forEach(amountField => {
+            subtotal += parseFloat(amountField.value) || 0;
+        });
+
+        let tax = subtotal * 0.10; // 10% tax
+        let total = subtotal + tax;
+
+        subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+        taxEl.textContent = `$${tax.toFixed(2)}`;
+        totalEl.textContent = `$${total.toFixed(2)}`;
+
+        // Update read-only field and hidden field
+        amountInput.value = total.toFixed(2);
+        totalHidden.value = total.toFixed(2);
+    }
+
+    tbody.addEventListener("input", function (e) {
+        if (e.target.classList.contains("qty") || e.target.classList.contains("rate")) {
+            calculateAmount(e.target.closest("tr"));
+            calculateTotals();
+        }
+    });
+
+    tbody.addEventListener("click", function (e) {
+        if (e.target.closest(".addRow")) {
+            const newRow = tbody.rows[0].cloneNode(true);
+            newRow.querySelectorAll("input").forEach(input => {
+                if (input.classList.contains("qty")) input.value = 1;
+                else if (input.classList.contains("rate") || input.classList.contains("amount")) input.value = 0;
+                else input.value = "";
+            });
+            tbody.appendChild(newRow);
+            calculateTotals();
+        }
+
+        if (e.target.closest(".removeRow")) {
+            if (tbody.rows.length > 1) {
+                e.target.closest("tr").remove();
+                calculateTotals();
+            }
+        }
+    });
+
+    // Initial calculation
+    calculateAmount(tbody.rows[0]);
+    calculateTotals();
+});
+</script>
+
+
 @endpush

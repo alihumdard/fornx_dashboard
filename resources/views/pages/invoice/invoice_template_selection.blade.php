@@ -76,10 +76,13 @@
     </div>
 
     <!-- Proceed Button -->
-    <a href="{{ route('invoices.information') }}"
+    <a id="proceedBtn"
+        href="#"
+        data-base-url="{{ route('invoices.information') }}"
         class="mt-6 px-6 py-2 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition duration-300">
         Proceed
     </a>
+
 
 </div>
 
@@ -93,6 +96,7 @@
         const nextBtn = document.getElementById('nextBtn');
         const currentSlideEl = document.getElementById('currentSlide');
         const totalSlidesEl = document.getElementById('totalSlides');
+        const proceedBtn = document.getElementById('proceedBtn');
 
         let currentSlide = 0;
         const totalSlides = document.querySelectorAll('.slider-item').length;
@@ -121,7 +125,20 @@
             }
         });
 
+        // Proceed button -> redirect with selected template number
+        proceedBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            let selectedTemplate = currentSlide + 1; // 1, 2, or 3
+            let baseUrl = proceedBtn.getAttribute('data-base-url'); 
+
+            // Build URL correctly
+            window.location.href = baseUrl + "?template=" + selectedTemplate;
+        });
+
+
         updateSlider();
     });
 </script>
+
 @endpush

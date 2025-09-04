@@ -326,15 +326,15 @@
                 <img src="{{ asset('assets/images/logo.jpg') }}" alt="Logo" class="company-logo">
             </div>
             <div class="contact-info">
-                <div class="company-fullname">FRONXSOLUTION</div>
-                <div>www.website.com</div>
-                <div>hello@email.com</div>
-                <div>+91 00000 00000</div>
+                <div class="company-fullname">{{ $invoice->company_name ?? 'Company Name' }}</div>
+                <div>{{ $invoice->website ?? 'www.website.com' }}</div>
+                <div>{{ $invoice->email ?? 'hello@email.com' }}</div>
+                <div>{{ $invoice->phone_number ?? '+91 00000 00000' }}</div>
             </div>
 
             <div style="display: flex; flex-direction: column; padding-top: 10px; color: #666;">
                 <span style="font-size: 40px;">Invoice</span>
-                <span>AB0234-01</span>
+                <span>#{{ $invoice->invoice_number ?? '0000' }}</span>
             </div>
         </div>
 
@@ -346,29 +346,25 @@
             <tr>
                 <th width="40%">Billed to</th>
                 <th width="30%">Invoice number</th>
-                <!-- <th width="30%" class="align-right">Invoice of (USD)</th> -->
             </tr>
             <tr>
-                <td class="bold-text">Company Date</td>
-                <td>#AB2324-01</td>
-                <!-- <td class="invoice-amount">$4,950.00</td> -->
+                <td class="bold-text">{{ $invoice->client_name ?? 'Client Name' }}</td>
+                <td>#{{ $invoice->invoice_number ?? '0000' }}</td>
             </tr>
             <tr>
-                <td>Company address</td>
-                <td></td>
+                <td>{{ $invoice->client_address ?? 'Client Address' }}</td>
                 <td></td>
             </tr>
             <tr>
-                <td>City, Country - 00000</td>
+                <td>{{ $invoice->client_city ?? 'City' }}, {{ $invoice->client_country ?? 'Country' }} - {{ $invoice->client_zip ?? '00000' }}</td>
                 <td class="light-text">Reference</td>
                 <td>Amount Due</td>
             </tr>
             <tr>
-                <td>+0 (000) 123-4567</td>
-                <td>INV-057</td>
-                <td class="invoice-amount" style="padding: 5px;">US$ 45,00.00</td>
+                <td>{{ $invoice->client_phone_number ?? '+0 (000) 123-4567' }}</td>
+                <td>{{ $invoice->reference ?? 'INV-000' }}</td>
+                <td class="invoice-amount" style="padding: 5px;">US$ {{ number_format($invoice->total_amount ?? 0, 2) }}</td>
             </tr>
-
         </table>
 
         <!-- Divider -->
@@ -376,41 +372,25 @@
 
         <!-- Item Details -->
         <div>
-            <div class="section-title">Digital Product Design</div>
+            <div class="section-title">{{ $invoice->subject ?? 'Project / Service' }}</div>
             <table class="items-table">
                 <thead>
                     <tr>
-                        <th width="50%"># Title/Discription</th>
-                        <th width="15%"></th>
-                        <th width="15%"></th>
+                        <th width="50%"># Title/Description</th>
+                        <th width="15%">QTY</th>
+                        <th width="15%">Rate</th>
                         <th width="20%">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td class="bold-text">Service Name</td>
-                        <td></td>
-                        <td></td>
-                        <td>$3,000.00</td>
-                    </tr>
-                    <tr>
-                        <td class="light-text">01 jul - 20 jul Hours log</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td class="bold-text">Item Name</td>
-                        <td></td>
-                        <td></td>
-                        <td>$1,500.00</td>
-                    </tr>
-                    <tr>
-                        <td class="light-text">01 jul - 20 jul Hours log</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                    @foreach($invoice->items as $item)
+                        <tr>
+                            <td class="bold-text">{{ $item->name }}</td>
+                            <td>{{ $item->qty }}</td>
+                            <td>${{ number_format($item->rate, 2) }}</td>
+                            <td>${{ number_format($item->amount, 2) }}</td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -420,34 +400,34 @@
 
         <div style="padding-bottom: 60px;">
             <h2>Total</h2>
-            <span>please pay within 15 days of recieveing this invoice</span>
+            <span>Please pay within 15 days of receiving this invoice</span>
         </div>
-
 
         <!-- Footer -->
         <div class="footer" style="display: flex;">
             <div>
                 <div>Thanks for the business.</div>
-                <p style="padding-left: 5px;">payment info</p>
+                <p style="padding-left: 5px;">Payment info</p>
                 <div class="terms">
-                    <div class="terms-title">Acount Name</div>
-                    <div>Business Address, City , State, IN - 000 000</div>
+                    <div class="terms-title">Account Name</div>
+                    <div>{{ $invoice->company_name ?? 'Company Name' }} - {{ $invoice->address ?? 'Business Address' }}</div>
                 </div>
             </div>
             <div style="padding-left: 50px;">
                 <h5>Bank Name</h5>
-                <p>ABCD bank</p>
+                <p>{{ $invoice->bank_name ?? 'ABCD Bank' }}</p>
             </div>
              <div style="padding-left: 50px;">
                 <h5>Swift Code</h5>
-                <p>ABCD bank</p>
+                <p>{{ $invoice->swift_code ?? 'SWIFT123' }}</p>
             </div>
              <div style="padding-left: 50px;">
-                <h5>Acount #</h5>
-                <p>ABCD bank</p>
+                <h5>Account #</h5>
+                <p>{{ $invoice->account_number ?? '000123456789' }}</p>
             </div>
         </div>
     </div>
 </body>
+
 
 </html>

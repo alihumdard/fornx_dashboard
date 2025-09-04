@@ -274,31 +274,30 @@
         <div class="invoice-header">
             <div>
                 <h1 class="invoice-title">INVOICE</h1>
-                 <div class="billed-to">
-                <div class="section-title">Billed to</div>
-                <div class="billed-details">Client Company</div>
-                <div class="billed-details">456 Client Avenue</div>
-                <div class="billed-details">Los Angeles, CA 90001</div>
-                <div class="billed-details">United States</div>
-            </div>
+                <div class="billed-to">
+                    <div class="section-title">Billed to</div>
+                    <div class="billed-details">{{ $invoice->client_name ?? 'Client Company' }}</div>
+                    <div class="billed-details">{{ $invoice->client_address ?? '456 Client Avenue' }}</div>
+                    <div class="billed-details">{{ $invoice->client_city ?? 'Los Angeles' }}, {{ $invoice->client_state ?? 'CA' }} {{ $invoice->client_zip ?? '90001' }}</div>
+                    <div class="billed-details">{{ $invoice->client_country ?? 'United States' }}</div>
+                </div>
             </div>
             <div class="company-info">
                 <img src="{{ asset('assets/images/logo.jpg') }}" alt="Logo" class="company-logo">
 
-                <div class="company-details">123 Business Street</div>
-                <div class="company-details">New York, NY 10001</div>
-                <div class="company-details">United States</div>
-                <div class="company-details">Tax ID: 12-3456789</div>
+                <div class="company-details">{{ $invoice->address ?? '123 Business Street' }}</div>
+                <div class="company-details">{{ $invoice->city ?? 'New York' }}, {{ $invoice->state ?? 'NY' }} {{ $invoice->zip ?? '10001' }}</div>
+                <div class="company-details">{{ $invoice->country ?? 'United States' }}</div>
+                <div class="company-details">Tax ID: {{ $invoice->tax_id ?? '12-3456789' }}</div>
             </div>
         </div>
 
         <!-- Billed To Section -->
         <div class="billed-section">
-           
             <div class="invoice-info">
-                <div class="invoice-details"><span class="invoice-number">Invoice #:</span> INV-2023-001</div>
-                <div class="invoice-details"><span class="invoice-number">Date:</span> June 15, 2023</div>
-                <div class="invoice-details"><span class="invoice-number">Due Date:</span> June 30, 2023</div>
+                <div class="invoice-details"><span class="invoice-number">Invoice #:</span> {{ $invoice->invoice_number ?? 'INV-2023-001' }}</div>
+                <div class="invoice-details"><span class="invoice-number">Date:</span> {{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('d M, Y') : '' }}</div>
+                <div class="invoice-details"><span class="invoice-number">Due Date:</span> {{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d M, Y') : '' }}</div>
             </div>
         </div>
 
@@ -313,42 +312,17 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
-                        <div class="item-name">Web Development</div>
-                        <div class="item-description">Custom website development</div>
-                    </td>
-                    <td>1</td>
-                    <td>$3,000.00</td>
-                    <td>$3,000.00</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="item-name">UI/UX Design</div>
-                        <div class="item-description">User interface and experience design</div>
-                    </td>
-                    <td>1</td>
-                    <td>$3,000.00</td>
-                    <td>$3,000.00</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="item-name">Mobile App Development</div>
-                        <div class="item-description">iOS and Android application</div>
-                    </td>
-                    <td>1</td>
-                    <td>$1,500.00</td>
-                    <td>$1,500.00</td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="item-name">SEO Optimization</div>
-                        <div class="item-description">Search engine optimization services</div>
-                    </td>
-                    <td>1</td>
-                    <td>$1,500.00</td>
-                    <td>$1,500.00</td>
-                </tr>
+                @foreach($invoice->items as $item)
+                    <tr>
+                        <td>
+                            <div class="item-name">{{ $item->name }}</div>
+                            <div class="item-description">{{ $item->description ?? '' }}</div>
+                        </td>
+                        <td>{{ $item->qty }}</td>
+                        <td>${{ number_format($item->rate, 2) }}</td>
+                        <td>${{ number_format($item->amount, 2) }}</td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
 
@@ -357,30 +331,30 @@
             <table class="totals-table">
                 <tr>
                     <td class="label">Subtotal:</td>
-                    <td class="value">$9,000.00</td>
+                    <td class="value">${{ number_format($invoice->amount ?? 0, 2) }}</td>
                 </tr>
                 <tr>
                     <td class="label">Tax (10%):</td>
-                    <td class="value">$900.00</td>
+                    <td class="value">${{ number_format(($invoice->amount ?? 0) * 0.10, 2) }}</td>
                 </tr>
                 <tr class="total-row">
                     <td class="label">Total:</td>
-                    <td class="value">US$ 9,900.00</td>
+                    <td class="value">US$ {{ number_format($invoice->total_amount ?? 0, 2) }}</td>
                 </tr>
             </table>
         </div>
 
         <!-- Payment Section -->
         <div class="payment-section">
-            <div class="payment-details">Please pay within 15 days of receiving this invoice.</div>
+            <div class="payment-details">{{ $invoice->terms ?? 'Please pay within 15 days of receiving this invoice.' }}</div>
         </div>
 
         <!-- Footer -->
         <div class="invoice-footer">
-            <div> www.fronxsolution.com | hello@fronxsolution.com | +1 (555) 123-4567</div>
-            
+            <div>{{ $invoice->website ?? 'www.fronxsolution.com' }} | {{ $invoice->email ?? 'hello@fronxsolution.com' }} | {{ $invoice->phone_number ?? '+1 (555) 123-4567' }}</div>
         </div>
     </div>
 </body>
+
 
 </html>

@@ -22,6 +22,13 @@
     </div>
     @endif
 
+    @if(session('invoice_id'))
+        <div class="p-4 bg-green-100 text-green-800 rounded-md">
+            Invoice ID: {{ session('invoice_id') }}
+        </div>
+    @endif
+
+
     <!-- Table -->
     <div class="overflow-hidden rounded-xl border border-gray-100">
         <table class="w-full text-left text-sm text-gray-600">
@@ -42,8 +49,11 @@
                 <tr>
                     <td class="px-6 py-3">{{ $client->name }}</td>
                     <td class="px-6 py-3">{{ $client->email }}</td>
+                   <td class="px-6 py-3 text-right">
                     <td class="px-6 py-3 text-right">
-                        <button data-id="{{ $client->id }}" onclick="showInvoicePopup()"
+                        <button 
+                            data-id="{{ $client->id }}"
+                            onclick="toggleSelect(this)"
                             class="px-3 py-1 text-sm rounded-md border border-indigo-500 bg-gradient-to-r from-indigo-500 to-blue-500 text-white shadow hover:opacity-90">
                             Select
                         </button>
@@ -81,28 +91,56 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex justify-end gap-3 mt-6">
-        <button class="px-5 py-2 rounded-lg border border-purple-500 text-purple-600 hover:bg-purple-50">
-            Cancel
-        </button>
-        <button class="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-600 text-white shadow hover:opacity-90">
-            Proceed
-        </button>
-    </div>
+    <!-- Action Buttons -->
+<div class="flex justify-end gap-3 mt-6">
+    <button type="button" class="px-5 py-2 rounded-lg border border-purple-500 text-purple-600 hover:bg-purple-50">
+        Cancel
+    </button>
+    <button type="button" onclick="submitInvoice()" class="px-5 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-600 text-white shadow hover:opacity-90">
+        Proceed
+    </button>
+</div>
+
+
+<form id="sendInvoiceForm" action="{{ route('invoices.send') }}" method="POST">
+    @csrf
+    <input type="hidden" name="invoice_id" value="{{ session('invoice_id') }}">
+    <input type="hidden" id="selected_clients" name="clients">
+</form>
+
 
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    function showInvoicePopup() {
-        document.getElementById('invoicePopup').classList.remove('hidden');
-        document.body.style.overflow = 'hidden'; // Prevent scrolling when popup is open
+let selectedClientIds = [];
+
+function toggleSelect(button) {
+    const clientId = button.getAttribute('data-id');
+
+    if (button.textContent.trim() === 'Select') {
+        button.textContent = 'Selected';
+        button.classList.remove('from-indigo-500', 'to-blue-500', 'border-indigo-500');
+        button.classList.add('bg-green-500', 'border-green-500');
+        selectedClientIds.push(clientId);
+    } else {
+        button.textContent = 'Select';
+        button.classList.remove('bg-green-500', 'border-green-500');
+        button.classList.add('from-indigo-500', 'to-blue-500', 'border-indigo-500');
+        selectedClientIds = selectedClientIds.filter(id => id !== clientId);
+    }
+}
+
+function submitInvoice() {
+    if (selectedClientIds.length === 0) {
+        alert("Please select at least one client.");
+        return;
     }
 
-    function hideInvoicePopup() {
-        document.getElementById('invoicePopup').classList.add('hidden');
-        document.body.style.overflow = ''; // Restore scrolling
-    }
+    document.getElementById('selected_clients').value = JSON.stringify(selectedClientIds);
+
+    document.getElementById('sendInvoiceForm').submit();
+}
 </script>
 @endpush
