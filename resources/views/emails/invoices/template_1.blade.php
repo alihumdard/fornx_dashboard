@@ -178,6 +178,12 @@
         border-bottom: 1px solid #eee;
     }
 
+    .bg {
+        background: #f2f2f2;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
     .invoice-table td {
         padding: 8px 10px 8px 0;
         vertical-align: top;
@@ -306,7 +312,6 @@
     /* Highlight important elements */
     .invoice-amount {
         color: blue;
-        background: yellow;
         font-weight: 600;
     }
 
@@ -323,107 +328,106 @@
         <!-- Header -->
         <div class="header">
             <div class="logo-container">
+                @if($pdf_logo)
+                <img src="{{ public_path('assets/images/logo.jpg') }}" alt="Logo" class="company-logo">
+                @else
                 <img src="{{ asset('assets/images/logo.jpg') }}" alt="Logo" class="company-logo">
+                @endif
             </div>
             <div class="contact-info">
                 <div class="company-fullname">{{ $invoice->company_name ?? 'Company Name' }}</div>
                 <div>{{ $invoice->website ?? 'www.website.com' }}</div>
                 <div>{{ $invoice->email ?? 'hello@email.com' }}</div>
-                <div>{{ $invoice->phone_number ?? '+91 00000 00000' }}</div>
+                <div>{{ $invoice->phone ?? '+91 00000 00000' }}</div>
             </div>
 
             <div style="display: flex; flex-direction: column; padding-top: 10px; color: #666;">
-                <span style="font-size: 40px;">Invoice</span>
-                <span>#{{ $invoice->invoice_number ?? '0000' }}</span>
+                <span>{{ $invoice->business_address ?? 'Business Address' }}</span>
+                <span>{{ $invoice->city ?? 'City' }}, {{ $invoice->state ?? 'State' }}, {{ $invoice->country ?? 'IN' }} {{ $invoice->zip ?? '000000' }}</span>
+                <span>TAX ID {{ $invoice->tax_id ?? '00XXX1234XX' }}</span>
             </div>
         </div>
 
         <!-- Divider -->
         <div class="divider"></div>
 
-        <!-- Invoice Details Table -->
-        <table class="invoice-table">
-            <tr>
-                <th width="40%">Billed to</th>
-                <th width="30%">Invoice number</th>
-            </tr>
-            <tr>
-                <td class="bold-text">{{ $invoice->client_name ?? 'Client Name' }}</td>
-                <td>#{{ $invoice->invoice_number ?? '0000' }}</td>
-            </tr>
-            <tr>
-                <td>{{ $invoice->client_address ?? 'Client Address' }}</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>{{ $invoice->client_city ?? 'City' }}, {{ $invoice->client_country ?? 'Country' }} - {{ $invoice->client_zip ?? '00000' }}</td>
-                <td class="light-text">Reference</td>
-                <td>Amount Due</td>
-            </tr>
-            <tr>
-                <td>{{ $invoice->client_phone_number ?? '+0 (000) 123-4567' }}</td>
-                <td>{{ $invoice->reference ?? 'INV-000' }}</td>
-                <td class="invoice-amount" style="padding: 5px;">US$ {{ number_format($invoice->total_amount ?? 0, 2) }}</td>
-            </tr>
-        </table>
-
-        <!-- Divider -->
-        <div class="divider"></div>
-
-        <!-- Item Details -->
-        <div>
-            <div class="section-title">{{ $invoice->subject ?? 'Project / Service' }}</div>
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th width="50%"># Title/Description</th>
-                        <th width="15%">QTY</th>
-                        <th width="15%">Rate</th>
-                        <th width="20%">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($invoice->items as $item)
-                        <tr>
-                            <td class="bold-text">{{ $item->name }}</td>
-                            <td>{{ $item->qty }}</td>
-                            <td>${{ number_format($item->rate, 2) }}</td>
-                            <td>${{ number_format($item->amount, 2) }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
+        <div class="bg">
+            <!-- Invoice Details Table -->
+            <table class="invoice-table">
+                <tr>
+                    <th width="40%">Billed to</th>
+                    <th width="30%">Invoice number</th>
+                    <th width="30%" class="align-right">Invoice of (USD)</th>
+                </tr>
+                <tr>
+                    <td class="bold-text">{{ $invoice->client_name ?? 'Client Name' }}</td>
+                    <td>#{{ $invoice->invoice_number ?? '0000' }}</td>
+                    <td class="invoice-amount">${{ number_format($invoice->total_amount ?? 0, 2) }}</td>
+                </tr>
+                <tr>
+                    <td>{{ $invoice->client_address ?? 'Client Address' }}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>{{ $invoice->client_city ?? 'City' }}, {{ $invoice->client_country ?? 'Country' }} - {{ $invoice->client_zip ?? '00000' }}</td>
+                    <td class="light-text">Reference</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>{{ $invoice->client_phone ?? '+0 (000) 123-4567' }}</td>
+                    <td>{{ $invoice->reference ?? 'INV-000' }}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="light-text">Subject</td>
+                    <td class="light-text">Invoice date</td>
+                    <td class="light-text">Due date</td>
+                </tr>
+                <tr>
+                    <td class="bold-text">{{ $invoice->subject ?? 'Design System' }}</td>
+                    <td>{{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('d M, Y') : '' }}</td>
+                    <td>{{ $invoice->due_date ? \Carbon\Carbon::parse($invoice->due_date)->format('d M, Y') : '' }}</td>
+                </tr>
             </table>
-        </div>
 
+            <!-- Divider -->
+            <div class="divider"></div>
+
+            <!-- Item Details -->
+            <div>
+                <div class="section-title">ITEM DETAIL</div>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th width="50%">Item</th>
+                            <th width="15%">QTY</th>
+                            <th width="15%">RATE</th>
+                            <th width="20%">AMOUNT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                         @foreach($invoice->items as $item)
+                            <tr>
+                                <td class="bold-text">{{ $item->name }}</td>
+                                <td>{{ $item->qty }}</td>
+                                <td>${{ number_format($item->rate, 2) }}</td>
+                                <td>${{ number_format($item->amount, 2) }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <!-- Divider -->
         <div class="divider"></div>
-
-        <div style="padding-bottom: 60px;">
-            <h2>Total</h2>
-            <span>Please pay within 15 days of receiving this invoice</span>
-        </div>
 
         <!-- Footer -->
-        <div class="footer" style="display: flex;">
-            <div>
-                <div>Thanks for the business.</div>
-                <p style="padding-left: 5px;">Payment info</p>
-                <div class="terms">
-                    <div class="terms-title">Account Name</div>
-                    <div>{{ $invoice->company_name ?? 'Company Name' }} - {{ $invoice->address ?? 'Business Address' }}</div>
-                </div>
-            </div>
-            <div style="padding-left: 50px;">
-                <h5>Bank Name</h5>
-                <p>{{ $invoice->bank_name ?? 'ABCD Bank' }}</p>
-            </div>
-             <div style="padding-left: 50px;">
-                <h5>Swift Code</h5>
-                <p>{{ $invoice->swift_code ?? 'SWIFT123' }}</p>
-            </div>
-             <div style="padding-left: 50px;">
-                <h5>Account #</h5>
-                <p>{{ $invoice->account_number ?? '000123456789' }}</p>
+        <div class="footer">
+            <div>Thanks for the business.</div>
+            <div class="terms">
+                <div class="terms-title">Terms & Conditions</div>
+                <div>{{ $invoice->terms ?? 'Please pay within 15 days of receiving this invoice.' }}</div>
             </div>
         </div>
     </div>

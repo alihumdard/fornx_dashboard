@@ -101,11 +101,14 @@ class TimeController extends Controller
     public function processCheckIn(Request $request)
     {
         $user = Auth::user();
-        $today = Carbon::today();
+        $today = now()->toDateString();
 
         $attendance = Attendance::firstOrCreate(
-            ['user_id' => $user->id, 'date' => $today->toDateString()],
-            ['check_in_time' => Carbon::now()->toTimeString(), 'status' => 'In Progress']
+            ['user_id' => $user->id, 'date' => $today],
+            [
+                'check_in_time' => now()->toTimeString(),
+                'status' => 'In Progress'
+            ]
         );
 
         if ($attendance->wasRecentlyCreated) {
