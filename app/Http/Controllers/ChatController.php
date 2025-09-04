@@ -6,71 +6,134 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use App\Models\Conversation;
+use App\Models\Message;
+use App\Events\MessageSent;
+use App\Models\User;
+use App\Models\ConversationUser;
+
 
 class ChatController extends Controller
 {
-    /**
-     * Show the main chat view.
-     *
-     * @return View
-     */
-    public function show(): View
-    {
-        $currentUserId = 1;
 
-        return view('pages.chat.index', compact('currentUserId'));
+    public function view(): View
+    {
+        return view('pages.chat.index'); // resources/views/chat/index.blade.php
     }
 
-    /**
-     * Fetch all conversations for the authenticated user.
-     * This will be used to populate the conversation list on the left side of the UI.
-     *
-     * @return JsonResponse
-     */
-    public function getConversations(): JsonResponse
+   public function index(Request $request, $type)
     {
-        $conversations = [
-            (object)['id' => 1, 'name' => 'Elmer Laverty', 'last_message' => 'Haha oh man!', 'last_message_time' => '10:30 AM'],
-            (object)['id' => 2, 'name' => 'Jane Doe', 'last_message' => 'Did you see the latest project updates?', 'last_message_time' => '9:15 AM'],
-            (object)['id' => 3, 'name' => 'John Smith', 'last_message' => 'Not yet, I\'ll check them out now.', 'last_message_time' => 'Yesterday'],
-        ];
+        $conversations = Conversation::where('type', $type)
+            ->get()
+            ->map(function ($c) {
+                $c->participants = $c->resolved_participants; // already resolved
+                return $c;
+            });
 
-        return response()->json($conversations);
+        // Fetch entities for new chats
+        switch ($type) {
+            case 'users':
+                $entities = \App\Models\User::all(['id', 'name']);
+                break;
+            case 'clients':
+                $entities = \App\Models\Client::all(['id', 'name']);
+                break;
+            case 'teams':
+                $entities = \App\Models\Team::all(['id', 'name']);
+                break;
+            default:
+                $entities = collect();
+                break;
+        }
+
+        return response()->json([
+            'conversations' => $conversations,
+            'entities'      => $entities,
+        ]);
     }
 
-    /**
-     * Fetch messages for a specific conversation.
-     *
-     * @param  int  $conversationId
-     * @return JsonResponse
-     */
-    public function getMessages(int $conversationId): JsonResponse
-    {
-        $messages = [
-            (object)['user_id' => 2, 'message' => 'Hey! How are you?', 'created_at' => now()],
-            (object)['user_id' => 1, 'message' => 'I\'m good, what about you? 🙂', 'created_at' => now()],
-            (object)['user_id' => 2, 'message' => 'Haha oh man!', 'created_at' => now()],
-            (object)['user_id' => 1, 'message' => 'Did you see the latest project updates?', 'created_at' => now()],
-            (object)['user_id' => 2, 'message' => 'Not yet, I\'ll check them out now.', 'created_at' => now()],
-        ];
-
+    // Get messages for a conversation
+    public function show($id) {
+        $messages = Message::where('conversation_id', $id)->with('sender')->get();
         return response()->json($messages);
     }
 
-    /**
-     * Store a new message submitted by the user.
-     *
-     * @param  Request  $request
-     * @return JsonResponse
-     */
-    public function sendMessage(Request $request): JsonResponse
-    {
-        $request->validate([
-            'conversation_id' => 'required|integer',
-            'sender_id' => 'required|integer',
-            'message' => 'required|string',
+    // Send a new message
+    public function store(Request $request, $conversationId) {
+        $message = Message::create([
+            'conversation_id' => $conversationId,
+            'sender_id' => auth()->id(),
+            'sender_type' => get_class(auth()->user()),
+            'body' => $request->body,
         ]);
 
-        return response()->json(['status' => 'success']);
+        broadcast(new MessageSent($message))->toOthers();
+
+        return response()->json($message);
     }
+
+    public function start(Request $request)
+{
+    $request->validate([
+        'entity_id' => 'required|integer',
+        'type'      => 'required|string|in:clients,users,teams',
+    ]);
+
+    $entityId   = $request->entity_id;
+    $type       = $request->type;
+    $authId     = auth()->id();
+    $authType   = get_class(auth()->user());
+
+    $entityClass = match ($type) {
+        'users'   => \App\Models\User::class,
+        'clients' => \App\Models\Client::class,
+        'teams'   => \App\Models\Team::class,
+    };
+
+    // Find conversation with exactly these two participants
+    $conversation = Conversation::where('type', $type)
+        ->whereHas('participants', fn($q) => $q->whereIn('user_id', [$authId, $entityId]))
+        ->get()
+        ->first(fn($conv) => $conv->participants->pluck('user_id')->sort()->values()->toArray() === collect([$authId, $entityId])->sort()->values()->toArray());
+
+    // If conversation does not exist, create it
+    if (!$conversation) {
+        $conversation = Conversation::create([
+            'type' => $type,
+            'creator_id' => $authId,
+        ]);
+
+        // Add participants safely (prevent duplicates)
+        $participants = [
+            ['user_id' => $authId, 'user_type' => $authType],
+            ['user_id' => $entityId, 'user_type' => $entityClass]
+        ];
+
+        foreach ($participants as $p) {
+            \App\Models\ConversationUser::firstOrCreate([
+                'conversation_id' => $conversation->id,
+                'user_id' => $p['user_id'],
+                'user_type' => $p['user_type']
+            ]);
+        }
+    }
+
+    // Resolve participants with real names
+    $conversation->participants = $conversation->resolved_participants;
+
+    // Fetch messages
+    $messages = \App\Models\Message::where('conversation_id', $conversation->id)
+        ->with('sender')
+        ->get();
+
+    return response()->json([
+        'conversation' => $conversation,
+        'messages'     => $messages,
+    ]);
+}
+
+
+
+
+
 }

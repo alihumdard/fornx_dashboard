@@ -46,6 +46,19 @@ Route::middleware('auth')->group(function () {
     Route::patch('/users/{id}/restore', [UserController::class, 'restore'])->name('users.restore');
   });
 
+
+  // routes/web.php
+Route::middleware('auth')->group(function () {
+      Route::get('/chat', [ChatController::class, 'view'])->name('chat.view'); // loads Blade
+
+    Route::get('/chats/{type}', [ChatController::class, 'index']); // clients, users, teams
+    Route::get('/chat/{id}', [ChatController::class, 'show']);
+    Route::post('/chat/{id}/message', [ChatController::class, 'store']);
+    Route::post('/chat/start', [ChatController::class, 'start'])->name('chat.start');
+
+});
+
+
   // Projects
   Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
   Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
@@ -105,10 +118,10 @@ Route::middleware('auth')->group(function () {
 Route::post('/invoices/send', [InvoiceController::class, 'sendInvoice'])->name('invoices.send');
 
   // Chat Module Routes
-  Route::get('/chat', [ChatController::class, 'show'])->name('chat');
-  Route::get('/chat/conversations', [ChatController::class, 'getConversations'])->name('chat.getConversations');
-  Route::get('/chat/messages/{conversationId}', [ChatController::class, 'getMessages'])->name('chat.getMessages');
-  Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.sendMessage');
+  // Route::get('/chat', [ChatController::class, 'show'])->name('chat');
+  // Route::get('/chat/conversations', [ChatController::class, 'getConversations'])->name('chat.getConversations');
+  // Route::get('/chat/messages/{conversationId}', [ChatController::class, 'getMessages'])->name('chat.getMessages');
+  // Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.sendMessage');
 
 
   // Jobs

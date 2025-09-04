@@ -93,4 +93,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(Team::class, 'leader_id');
     }
+
+    
 }
