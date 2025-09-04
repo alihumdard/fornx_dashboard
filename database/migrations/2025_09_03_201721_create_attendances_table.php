@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->date('date')->unique(); // Ensures one entry per user per day
+            $table->date('date'); // Ensures one entry per user per day
             $table->time('check_in_time')->nullable();
             $table->time('check_out_time')->nullable();
             $table->string('status')->default('Not Started'); // 'Not Started', 'In Progress', 'Completed', 'Absent'

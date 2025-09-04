@@ -42,7 +42,7 @@ class InvoiceController extends Controller
     /**
      * Handle the POST request to store a new invoice.
      */
-   public function store(Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $validatedData = $request->validate([
             'company_name' => 'nullable|string|max:255',
@@ -60,7 +60,7 @@ class InvoiceController extends Controller
             'user_id' => 'required|integer',
             'status' => 'required|string|in:draft,sent,paid,cancelled',
             'calculated_total' => 'required|numeric',
-             'items' => 'required|array',
+            'items' => 'required|array',
             'items.*.name' => 'required|string|max:255',
             'items.*.qty' => 'required|integer|min:1',
             'items.*.rate' => 'required|numeric',
@@ -145,23 +145,22 @@ class InvoiceController extends Controller
         ]);
         $clientIds = json_decode($request->clients, true);
         $invoice = Invoice::findOrFail($request->invoice_id);
-
+        $templateview = 'emails.invoices.template_' . $invoice->invoice_template_id;
         // Generate PDF from invoice view
-        $pdf = Pdf::loadView('emais.invoices.pdf', compact('invoice'));
-
+        $pdf_logo = true;
         foreach ($clientIds as $id) {
             $client = Client::find($id);
-
+            $pdf = Pdf::loadView("$templateview", compact('invoice', 'client', 'pdf_logo'));
             if ($client) {
-                Mail::send('emails.invoice', ['invoice' => $invoice, 'client' => $client], function($message) use ($client, $pdf, $invoice) {
+                $pdf_logo = false;
+                Mail::send("$templateview", ['invoice' => $invoice, 'client' => $client , 'pdf_logo' => $pdf_logo], function ($message) use ($client, $pdf, $invoice) {
                     $message->to($client->email)
-                            ->subject("Invoice #{$invoice->id}")
-                            ->attachData($pdf->output(), "invoice_{$invoice->id}.pdf");
+                        ->subject("Invoice #{$invoice->id}")
+                        ->attachData($pdf->output(), "invoice_{$invoice->id}.pdf");
                 });
             }
         }
 
         return redirect()->back()->with('success', 'Invoice sent successfully!');
     }
-
 }
