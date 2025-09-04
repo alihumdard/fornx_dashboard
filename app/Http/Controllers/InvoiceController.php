@@ -138,30 +138,30 @@ class InvoiceController extends Controller
     }
 
     public function sendInvoice(Request $request)
-{
-    $request->validate([
-        'invoice_id' => 'required|exists:invoices,id',
-        'clients' => 'required',
-    ]);
-    $clientIds = json_decode($request->clients, true);
-    $invoice = Invoice::findOrFail($request->invoice_id);
+    {
+        $request->validate([
+            'invoice_id' => 'required|exists:invoices,id',
+            'clients' => 'required',
+        ]);
+        $clientIds = json_decode($request->clients, true);
+        $invoice = Invoice::findOrFail($request->invoice_id);
 
-    // Generate PDF from invoice view
-    $pdf = Pdf::loadView('emais.invoices.pdf', compact('invoice'));
+        // Generate PDF from invoice view
+        $pdf = Pdf::loadView('emais.invoices.pdf', compact('invoice'));
 
-    foreach ($clientIds as $id) {
-        $client = Client::find($id);
+        foreach ($clientIds as $id) {
+            $client = Client::find($id);
 
-        if ($client) {
-            Mail::send('emails.invoice', ['invoice' => $invoice, 'client' => $client], function($message) use ($client, $pdf, $invoice) {
-                $message->to($client->email)
-                        ->subject("Invoice #{$invoice->id}")
-                        ->attachData($pdf->output(), "invoice_{$invoice->id}.pdf");
-            });
+            if ($client) {
+                Mail::send('emails.invoice', ['invoice' => $invoice, 'client' => $client], function($message) use ($client, $pdf, $invoice) {
+                    $message->to($client->email)
+                            ->subject("Invoice #{$invoice->id}")
+                            ->attachData($pdf->output(), "invoice_{$invoice->id}.pdf");
+                });
+            }
         }
-    }
 
-    return redirect()->back()->with('success', 'Invoice sent successfully!');
-}
+        return redirect()->back()->with('success', 'Invoice sent successfully!');
+    }
 
 }
