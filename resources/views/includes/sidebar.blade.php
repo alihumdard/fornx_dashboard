@@ -144,7 +144,7 @@
                 </div>
 
                 <!-- Chat Module -->
-                <a href="{{ route('chat') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 @if(request()->routeIs('chat')) bg-white/10 @endif">
+                <a href="{{ route('chat.view') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10 @if(request()->routeIs('chat')) bg-white/10 @endif">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15l-4-4m0 0l4-4m-4 4h12" />
                     </svg>
