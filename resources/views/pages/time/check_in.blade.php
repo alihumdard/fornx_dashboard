@@ -52,7 +52,7 @@
                 {{-- Dynamic Time --}}
                 @if ($currentAttendance && $currentAttendance->status === 'In Progress')
                 <h1 class="text-5xl font-bold text-gray-800 tracking-tight" id="live-time">
-                    {{ \Carbon\Carbon::parse($currentAttendance->check_in_time)->format('H:i:s') }}
+                    {{ \Carbon\Carbon::parse($currentAttendance->check_in_time)->timezone(config('app.timezone'))->format('H:i:s') }}
                 </h1>
                 @else
                 <h1 class="text-5xl font-bold text-gray-800 tracking-tight" id="live-time">
