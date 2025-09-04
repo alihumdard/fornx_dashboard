@@ -259,11 +259,11 @@
                         <td class="px-4 py-3">
                            <select name="progress" id="editProjectProgressDropdown"
                                 class="w-full border rounded-lg px-3 py-2 text-gray-700">
-                                <option value="0" {{ $assignment->progress == 0 ? 'selected' : '' }}>0%</option>
-                                <option value="25" {{ $assignment->progress == 25 ? 'selected' : '' }}>25%</option>
-                                <option value="50" {{ $assignment->progress == 50 ? 'selected' : '' }}>50%</option>
-                                <option value="75" {{ $assignment->progress == 75 ? 'selected' : '' }}>75%</option>
-                                <option value="100" {{ $assignment->progress == 100 ? 'selected' : '' }}>Completed</option>
+                                <option value="0" {{ isset($assignment) && $assignment->progress == 0 ? 'selected' : '' }}>0%</option>
+                                <option value="25" {{ isset($assignment) && $assignment->progress == 25 ? 'selected' : '' }}>25%</option>
+                                <option value="50" {{ isset($assignment) &&  $assignment->progress == 50 ? 'selected' : '' }}>50%</option>
+                                <option value="75" {{ isset($assignment) &&  $assignment->progress == 75 ? 'selected' : '' }}>75%</option>
+                                <option value="100" {{ isset($assignment) &&  $assignment->progress == 100 ? 'selected' : '' }}>Completed</option>
                             </select>
 
                         </td>

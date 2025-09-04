@@ -58,7 +58,7 @@ Route::middleware('auth')->group(function () {
   Route::put('/assign-projects/{assignment}/update', [ProjectController::class, 'updateProgress'])->name('projects.updateProgress');
   Route::put('/credential-projects/{project}', [ProjectController::class, 'updateCredentials'])->name('projects.updateCredentials');
   Route::delete('/assign-projects/{assignment}', [ProjectController::class, 'assignProjectdestroy'])->name('assign-projects.destroy');
-Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment'])->name('projects.comments.store');
+  Route::post('/projects/{project}/comments', [ProjectController::class, 'addComment'])->name('projects.comments.store');
   Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
   // Clients
@@ -118,19 +118,18 @@ Route::post('/invoices/send', [InvoiceController::class, 'sendInvoice'])->name('
   Route::resource('roles', RoleController::class);
   Route::resource('permissions', PermissionController::class);
 
-  // Time Check-in/Check-out Routes
-  route::get('/time-check-in', [timecontroller::class, 'showtimecheckin'])->name('time.check_in');
-  route::get('/time-check-out', [timecontroller::class, 'showtimecheckout'])->name('time.check_out');
-  route::post('/time-check-in', [timecontroller::class, 'processcheckin'])->name('time.check_in.post');
-  route::post('/time-check-out', [timecontroller::class, 'processcheckout'])->name('time.check_out.post');
-
-
-
+  // Time tracking dashboard
+  Route::get('/time', [TimeController::class, 'showTimeDashboard'])->name('time.dashboard');
+  Route::post('/time/check-in', [TimeController::class, 'processCheckIn'])->name('time.check_in');
+  Route::post('/time/check-out', [TimeController::class, 'processCheckOut'])->name('time.check_out');
+  Route::post('/time/leave', [TimeController::class, 'submitLeave'])->name('time.leave.submit');
+    Route::get('/leaves', [TimeController::class, 'showLeaveRequests'])->name('time.leaves');
+    Route::post('/leaves/{leave}/status', [TimeController::class, 'updateLeaveStatus'])->name('leaves.updateStatus');
 
 
 
   // blank page route
   Route::get('/blank-template', function () {
-    return view('pages.blank');
+    return view('pages.time.check_out');
   })->name('menu.settings');
 });

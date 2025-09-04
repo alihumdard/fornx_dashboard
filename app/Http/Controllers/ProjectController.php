@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\AssignProject;
 use App\Models\ProjectComment;
 use Illuminate\Http\Request;
+use App\Events\CommentSent;
+
 
 class ProjectController extends Controller
 {
@@ -15,7 +17,7 @@ class ProjectController extends Controller
     {
         $projects = Project::with('client')->get();
         $users = User::all();
-        return view('pages.projects.index', compact('projects' , 'users'));
+        return view('pages.projects.index', compact('projects', 'users'));
     }
 
     public function create()
@@ -24,76 +26,76 @@ class ProjectController extends Controller
         return view('pages.create_project', compact('clients'));
     }
 
-  public function store(Request $request)
-{
-    // validate
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'client_id' => 'required|exists:clients,id',
-        'country' => 'required|string|max:255',
-        'platform' => 'required|string|max:255',
-        'priority' => 'required|string|in:High,Medium,Low',
-        'technology' => 'required|string|max:255',
-        'start_date' => 'required|date',
-        'end_date' => 'required|date|after_or_equal:start_date',
-        'earning' => 'required|numeric',
-        'paid_outside' => 'nullable|numeric',
-        'work_done_by' => 'required|string|max:255',
-        'project_guide' => 'nullable|string|max:255',
+    public function store(Request $request)
+    {
+        // validate
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'client_id' => 'required|exists:clients,id',
+            'country' => 'required|string|max:255',
+            'platform' => 'required|string|max:255',
+            'priority' => 'required|string|in:High,Medium,Low',
+            'technology' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'earning' => 'required|numeric',
+            'paid_outside' => 'nullable|numeric',
+            'work_done_by' => 'required|string|max:255',
+            'project_guide' => 'nullable|string|max:255',
 
-        // Modal fields
-        'reference_website' => 'nullable|string|max:255',
-        'description' => 'nullable|string|max:1000',
-        'cpanel_details' => 'nullable|string|max:1000',
-        'login' => 'nullable|string|max:255',
-        'password' => 'nullable|string|max:255',
-        'notes' => 'nullable|string|max:1000',
-    ]);
-
-    // Merge login & password into a credentials array
-    $credentials = null;
-    if ($request->filled('login') || $request->filled('password')) {
-        $credentials = json_encode([
-            'login' => $request->input('login'),
-            'password' => $request->input('password'),
+            // Modal fields
+            'reference_website' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'cpanel_details' => 'nullable|string|max:1000',
+            'login' => 'nullable|string|max:255',
+            'password' => 'nullable|string|max:255',
+            'notes' => 'nullable|string|max:1000',
         ]);
+
+        // Merge login & password into a credentials array
+        $credentials = null;
+        if ($request->filled('login') || $request->filled('password')) {
+            $credentials = json_encode([
+                'login' => $request->input('login'),
+                'password' => $request->input('password'),
+            ]);
+        }
+
+        // Create project
+        Project::create([
+            'name' => $request->name,
+            'client_id' => $request->client_id,
+            'country' => $request->country,
+            'platform' => $request->platform,
+            'priority' => $request->priority,
+            'technology' => $request->technology,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'earning' => $request->earning,
+            'paid_outside' => $request->paid_outside,
+            'work_done_by' => $request->work_done_by,
+            'project_guide' => $request->project_guide,
+
+            'reference_website' => $request->reference_website,
+            'description' => $request->description,
+            'cpanel_details' => $request->cpanel_details,
+            'credentials' => $credentials,
+            'notes' => $request->notes,
+
+            'status' => 'Pending',  // default
+            'progress' => 0,        // default
+        ]);
+
+        return redirect()->route('projects.index')->with('success', 'Project created successfully!');
     }
-
-    // Create project
-    Project::create([
-        'name' => $request->name,
-        'client_id' => $request->client_id,
-        'country' => $request->country,
-        'platform' => $request->platform,
-        'priority' => $request->priority,
-        'technology' => $request->technology,
-        'start_date' => $request->start_date,
-        'end_date' => $request->end_date,
-        'earning' => $request->earning,
-        'paid_outside' => $request->paid_outside,
-        'work_done_by' => $request->work_done_by,
-        'project_guide' => $request->project_guide,
-
-        'reference_website' => $request->reference_website,
-        'description' => $request->description,
-        'cpanel_details' => $request->cpanel_details,
-        'credentials' => $credentials,
-        'notes' => $request->notes,
-
-        'status' => 'Pending',  // default
-        'progress' => 0,        // default
-    ]);
-
-    return redirect()->route('projects.index')->with('success', 'Project created successfully!');
-}
 
 
     public function show(Project $project)
     {
         $assigned_projects = AssignProject::where('project_id', $project->id)->get();
 
-        $averageProgress = $assigned_projects->count() > 0 
-            ? intval($assigned_projects->avg('progress')) 
+        $averageProgress = $assigned_projects->count() > 0
+            ? intval($assigned_projects->avg('progress'))
             : 0;
 
         $credentials = json_decode($project->credentials, true);
@@ -132,13 +134,13 @@ class ProjectController extends Controller
         return redirect()->route('dashboard')->with('success', 'Project updated successfully.');
     }
 
-     public function updateProgress(Request $request, AssignProject $assignment)
+    public function updateProgress(Request $request, AssignProject $assignment)
     {
-        
+
         $request->validate([
-        'status'   => 'required|string',
-        'progress' => 'required|integer|min:0|max:100',
-        'description' => 'nullable|string|max:1000',
+            'status'   => 'required|string',
+            'progress' => 'required|integer|min:0|max:100',
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $assignment->update([
@@ -155,24 +157,6 @@ class ProjectController extends Controller
     {
         $project->delete();
         return redirect()->route('dashboard')->with('success', 'Project deleted successfully.');
-    }
-
-    public function progress1()
-    {
-        $project = Project::find(1);
-        return view('pages.project_progress.project_progress_1', compact('project'));
-    }
-
-    public function progress2()
-    {
-        $project = Project::find(1);
-        return view('pages.project_progress.project_progress_2', compact('project'));
-    }
-
-    public function progress3()
-    {
-        $project = Project::find(1);
-        return view('pages.project_progress.project_progress_3', compact('project'));
     }
 
     public function assign(Request $request)
@@ -239,16 +223,16 @@ class ProjectController extends Controller
             'comment' => 'required|string|max:1000',
         ]);
 
-        ProjectComment::create([
+        $comment = ProjectComment::create([
             'project_id' => $project->id,
             'user_id'    => auth()->id(),
             'comment'    => $request->comment,
         ]);
 
-        return back()->with('success', 'Comment added!');
+        // Fire the event to broadcast the new comment
+        broadcast(new CommentSent($comment))->toOthers();
+
+        // Return a JSON response instead of a redirect
+        return response()->json(['success' => true]);
     }
-
-
-
-
 }
