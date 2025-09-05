@@ -21,35 +21,46 @@ class ChatController extends Controller
         return view('pages.chat.index'); // resources/views/chat/index.blade.php
     }
 
-   public function index(Request $request, $type)
+    public function index(Request $request, $type)
     {
+       $authId   = auth()->id();
+        $authType = get_class(auth()->user());
+
         $conversations = Conversation::where('type', $type)
+            ->whereHas('participants', function($q) use ($authId, $authType) {
+                $q->where('user_id', $authId)
+                ->where('user_type', $authType);
+            })
             ->get()
             ->map(function ($c) {
-                $c->participants = $c->resolved_participants; // already resolved
+                $c->participants = $c->resolved_participants
+                    ->filter(fn($p) => !($p['id'] === auth()->id() && $p['user_type'] === get_class(auth()->user())))
+                    ->values();
                 return $c;
             });
 
-        // Fetch entities for new chats
-        switch ($type) {
-            case 'users':
-                $entities = \App\Models\User::all(['id', 'name']);
-                break;
-            case 'clients':
-                $entities = \App\Models\Client::all(['id', 'name']);
-                break;
-            case 'teams':
-                $entities = \App\Models\Team::all(['id', 'name']);
-                break;
-            default:
-                $entities = collect();
-                break;
-        }
 
-        return response()->json([
-            'conversations' => $conversations,
-            'entities'      => $entities,
-        ]);
+            // Fetch entities for new chats
+            switch ($type) {
+                case 'users':
+                    $entities = \App\Models\User::where('id', '!=', auth()->id())->get(['id', 'name']);
+                    break;
+
+                case 'clients':
+                    $entities = \App\Models\Client::all(['id', 'name']);
+                    break;
+                case 'teams':
+                    $entities = \App\Models\Team::all(['id', 'name']);
+                    break;
+                default:
+                    $entities = collect();
+                    break;
+            }
+
+            return response()->json([
+                'conversations' => $conversations,
+                'entities'      => $entities,
+            ]);
     }
 
     // Get messages for a conversation
@@ -67,7 +78,7 @@ class ChatController extends Controller
             'body' => $request->body,
         ]);
 
-        broadcast(new MessageSent($message))->toOthers();
+        broadcast(new MessageSent($message));
 
         return response()->json($message);
     }

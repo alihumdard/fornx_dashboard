@@ -33,6 +33,16 @@ body {
         font-size: 13px;
         padding: 8px 12px;
     }
+    .nav-tabs.active {
+        background-color: #3b82f6; /* Blue bg */
+        color: white;
+    }
+
+    
+    .chat-item.active, .chat-item.bg-blue-100 {
+    background-color: #e0f2fe; /* light blue */
+}
+
 }
 </style>
 <div class="flex flex-col h-[100vh] md:h-[85vh] bg-white rounded-lg shadow overflow-hidden chat-container">
@@ -61,18 +71,22 @@ body {
             <div class="bg-white p-3 md:p-4 rounded-lg shadow-sm w-full max-w-md mx-3">
                 <div class="flex justify-between">
                     <div class="text-center flex-1">
-                        <span class="nav-tabs text-[15px] bg-gray-100 p-3 rounded-full font-medium cursor-pointer"
-                            onclick="loadConversations('clients')">Clients</span>
+                        <span id="tab-clients"
+                            class="nav-tabs text-[15px] p-3 rounded-full font-medium cursor-pointer active"
+                            onclick="loadConversations('clients', true)">Clients</span>
                     </div>
                     <div class="text-center flex-1">
-                        <span class="nav-tabs text-[15px] font-medium cursor-pointer"
-                            onclick="loadConversations('users')">Users</span>
+                        <span id="tab-users"
+                            class="nav-tabs text-[15px] p-3 rounded-full font-medium cursor-pointer"
+                            onclick="loadConversations('users', true)">Users</span>
                     </div>
                     <div class="text-center flex-1">
-                        <span class="nav-tabs text-[15px] font-medium cursor-pointer"
-                            onclick="loadConversations('teams')">Teams</span>
+                        <span id="tab-teams"
+                            class="nav-tabs text-[15px] p-3 rounded-full font-medium cursor-pointer"
+                            onclick="loadConversations('teams', true)">Teams</span>
                     </div>
                 </div>
+
             </div>
 
             
@@ -85,49 +99,29 @@ body {
         <!-- Chat Window -->
         <div id="chatWindow" class="hidden md:flex md:w-2/3 flex-col chat-window">
             <!-- Chat Header -->
-          <div class="p-4 bg-gray-100 flex justify-between items-center border-b">
-            <div class="flex items-center">
-                <button class="md:hidden mr-3 text-gray-600" onclick="closeChat()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <img src="{{ asset('assets/images/image.png') }}" alt="Profile" class="w-8 h-8 rounded-full mr-3">
-                <div>
-                    <p class="font-semibold text-gray-800">Select a chat</p>
-                    <p class="text-xs text-gray-500">Online</p>
+         <div class="p-4 bg-gray-100 flex justify-between items-center border-b">
+                <div class="flex items-center">
+                    <button class="md:hidden mr-3 text-gray-600" onclick="closeChat()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <img id="chatHeaderAvatar" src="{{ asset('assets/images/image.png') }}" alt="Profile" class="w-8 h-8 rounded-full mr-3">
+                    <div>
+                        <p id="chatHeaderName" class="font-semibold text-gray-800">Select a chat</p>
+                        <p class="text-xs text-gray-500">Online</p>
+                    </div>
                 </div>
-            </div>
+                <div class="flex gap-4 text-gray-600">
+                    <i class="fas fa-phone cursor-pointer hover:text-blue-500" title="Voice Call"></i>
+                    <i class="fas fa-video cursor-pointer hover:text-blue-500" title="Video Call"></i>
+                    <i class="fas fa-paperclip cursor-pointer hover:text-blue-500" title="Attach File"></i>
+                </div>
         </div>
 
-            <!-- Messages Area -->
+
             <div id="messagesArea" class="flex-1 p-4 overflow-y-auto bg-gray-50">
-                {{-- <div class="mb-4 flex justify-start">
-                    <div class="message-bubble bg-white px-4 py-2 rounded-lg shadow text-sm text-gray-800">
-                        Hey! How are you?
-                    </div>
-                </div>
-                <div class="mb-4 flex justify-end">
-                    <div class="message-bubble bg-blue-500 text-white px-4 py-2 rounded-lg shadow text-sm">
-                        I'm good, what about you? 😊
-                    </div>
-                </div>
-                <div class="mb-4 flex justify-start">
-                    <div class="message-bubble bg-white px-4 py-2 rounded-lg shadow text-sm text-gray-800">
-                        Haha oh man!
-                    </div>
-                </div>
-                <div class="mb-4 flex justify-end">
-                    <div class="message-bubble bg-blue-500 text-white px-4 py-2 rounded-lg shadow text-sm">
-                        Did you see the latest project updates?
-                    </div>
-                </div>
-                <div class="mb-4 flex justify-start">
-                    <div class="message-bubble bg-white px-4 py-2 rounded-lg shadow text-sm text-gray-800">
-                        Not yet, I'll check them out now.
-                    </div>
-                </div> --}}
+              
             </div>
             
-            <!-- Message Input -->
             <div class="p-3 flex items-center bg-gray-100 border-t">
                 <input id="messageInput" type="text" placeholder="Type a message"
                     class="flex-1 mx-2 px-3 py-2 text-sm border border-gray-300 rounded-full focus:ring focus:ring-blue-300 focus:outline-none">
@@ -147,83 +141,104 @@ body {
 @push('scripts')
 
 
-<script src="https://js.pusher.com/8.0/pusher.min.js"></script>
 <script>
-    let currentConversation = null;
-    const pusher = new Pusher("{{ env('PUSHER_APP_KEY') }}", {
-        cluster: "{{ env('PUSHER_APP_CLUSTER') }}"
-    });
 
-    // Load conversations by type (clients/users/teams)
-    function loadConversations(type) {
-        const typeMap = {
-            users: 'App\\Models\\User',
-            clients: 'App\\Models\\Client',
-            teams: 'App\\Models\\Team'
-        };
+let currentConversation = null;
+    
 
-        fetch(`/chats/${type}`)
-            .then(res => res.json())
-            .then(data => {
-                let html = '';
+    let subscribedChannels = {};
 
-                // Show existing conversations, skip Unknown participants
-                data.conversations.forEach(conv => {
-                    const otherParticipants = conv.participants.filter(
-                        p => !(p.user_type === "{{ get_class(auth()->user()) }}" && p.id === {{ auth()->id() }})
-                    );
+    function setActiveTab(tabId) {
+        document.querySelectorAll('.nav-tabs').forEach(tab => {
+            tab.classList.remove('active', 'bg-blue-500', 'text-white');
+        });
 
-                    // Skip if no valid participants
-                    if (!otherParticipants.length) return;
+        const tab = document.getElementById(tabId);
+        tab.classList.add('active', 'bg-blue-500', 'text-white');
+    }
+   function loadConversations(type, autoOpenFirst = true) {
+    setActiveTab(`tab-${type}`);
+    const typeMap = {
+        users: 'App\\Models\\User',
+        clients: 'App\\Models\\Client',
+        teams: 'App\\Models\\Team'
+    };
 
-                    otherParticipants.forEach(participant => {
-                        if (!participant.name || participant.name === "Unknown") return;
+    fetch(`/chats/${type}`)
+        .then(res => res.json())
+        .then(data => {
+            let html = '';
+            let firstConversationId = null;
+            let firstParticipantName = null;
 
-                        html += `
-                        <div class="chat-item p-3 hover:bg-gray-100 cursor-pointer border-b flex gap-3"
-                            onclick="openConversation(${conv.id}, '${participant.name.replace(/'/g, "\\'")}')">
-                            <img src="http://127.0.0.1:8000/assets/images/image.png" class="w-10 h-10 rounded-lg object-contain">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between">
-                                    <p class="font-medium text-gray-900 text-sm truncate">${participant.name}</p>
-                                </div>
-                                <p class="text-gray-600 text-xs truncate">Click to chat</p>
-                            </div>
-                        </div>`;
-                    });
-                });
-
-
-                // Get list of existing entities to avoid duplicates
-                const existingEntities = data.conversations.flatMap(conv =>
-                    conv.participants
-                        .filter(p => !(p.id === {{ auth()->id() }} && p.user_type === "{{ get_class(auth()->user()) }}"))
-                        .map(p => `${p.user_type}-${p.id}`)
+            data.conversations.forEach(conv => {
+                const otherParticipants = conv.participants.filter(
+                    p => !(p.user_type === "{{ get_class(auth()->user()) }}" && p.id === {{ auth()->id() }})
                 );
 
-                // Show entities (clients/users/teams without conversation)
-                data.entities
-                    .filter(entity => !existingEntities.includes(`${typeMap[type]}-${entity.id}`))
-                    .forEach(entity => {
-                        const displayName = entity.name || "No Name"; // fallback
-                        html += `
-                        <div class="chat-item p-3 hover:bg-gray-100 cursor-pointer border-b flex gap-3"
-                            onclick="startConversation(${entity.id}, '${type}', '${displayName.replace(/'/g, "\\'")}')">
-                            <img src="{{ asset('assets/images/image.png') }}" class="w-10 h-10 rounded-lg object-contain">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between">
-                                    <p class="font-medium text-gray-900 text-sm truncate">${displayName}</p>
-                                </div>
-                                <p class="text-gray-600 text-xs truncate">Start new chat</p>
+                if (!otherParticipants.length) return;
+
+                otherParticipants.forEach((participant, index) => {
+                    if (!participant.name || participant.name === "Unknown") return;
+
+                    if (!firstConversationId) {
+                        firstConversationId = conv.id;
+                        firstParticipantName = participant.name;
+                    }
+
+                    html += `
+                    <div class="chat-item p-3 hover:bg-gray-100 cursor-pointer border-b flex gap-3"
+                    data-conversation-id="${conv.id}" 
+                        onclick="openConversation(${conv.id}, '${participant.name.replace(/'/g, "\\'")}')">
+                        <img src="/assets/images/image.png" class="w-10 h-10 rounded-lg object-contain">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between">
+                                <p class="font-medium text-gray-900 text-sm truncate">${participant.name}</p>
                             </div>
-                        </div>`;
-                    });
+                            <p class="text-gray-600 text-xs truncate">Click to chat</p>
+                        </div>
+                    </div>`;
 
-
-                document.getElementById('conversationList').innerHTML = html;
+                    // Subscribe to channel
+                    if (!subscribedChannels[conv.id]) {
+                        subscribedChannels[conv.id] = Echo.private(`chat.${conv.id}`)
+                            .listen('message.sent', (data) => {
+                                if (currentConversation === conv.id) appendMessage(data.message);
+                            });
+                    }
+                });
             });
+
+            // Render new conversation entities (optional)
+            data.entities
+                .filter(entity => !data.conversations.flatMap(c => c.participants.map(p => p.id)).includes(entity.id))
+                .forEach(entity => {
+                    const displayName = entity.name || "No Name";
+                    html += `
+                    <div class="chat-item p-3 hover:bg-gray-100 cursor-pointer border-b flex gap-3"
+                        onclick="startConversation(${entity.id}, '${type}', '${displayName.replace(/'/g, "\\'")}')">
+                        <img src="/assets/images/image.png" class="w-10 h-10 rounded-lg object-contain">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between">
+                                <p class="font-medium text-gray-900 text-sm truncate">${displayName}</p>
+                            </div>
+                            <p class="text-gray-600 text-xs truncate">Start new chat</p>
+                        </div>
+                    </div>`;
+                });
+
+            document.getElementById('conversationList').innerHTML = html;
+
+            // Auto-open first conversation
+            if (autoOpenFirst && firstConversationId) {
+                openConversation(firstConversationId, firstParticipantName);
+            }
+        });
     }
 
+    document.addEventListener('DOMContentLoaded', () => {
+        loadConversations('clients'); // Automatically loads clients tab
+    });
 
 
     // Start a new conversation
@@ -243,31 +258,42 @@ body {
 
             renderMessages(data.messages);
             openChat();
+
+            // reload list so new conversation appears
+            loadConversations(type);
         });
+
     }
 
 
+       function openConversation(id, name) {
+            currentConversation = id;
 
+            document.querySelector("#chatHeaderName").innerText = name;
 
-    // Open conversation and load messages
-    function openConversation(id, name) {
-        currentConversation = id;
-        document.querySelector("#chatWindow .font-semibold").innerText = name;
-
-        fetch(`/chat/${id}`)
-            .then(res => res.json())
-            .then(messages => {
-                renderMessages(messages);
+            // Highlight active conversation
+            document.querySelectorAll('#conversationList .chat-item').forEach(item => {
+                item.classList.remove('bg-blue-100');
             });
+            const activeItem = document.querySelector(`#conversationList .chat-item[data-conversation-id='${id}']`);
+            if (activeItem) activeItem.classList.add('bg-blue-100');
 
-        // Subscribe to Pusher channel
-        const channel = pusher.subscribe(`chat.${id}`);
-        channel.bind('message.sent', function(data) {
-            appendMessage(data.message);
-        });
+            fetch(`/chat/${id}`)
+                .then(res => res.json())
+                .then(messages => renderMessages(messages));
 
-        openChat(); // mobile toggle
-    }
+            if (!subscribedChannels[id]) {
+                subscribedChannels[id] = Echo.private(`chat.${id}`)
+                    .listen('message.sent', (data) => {
+                        if (currentConversation === id) appendMessage(data.message);
+                    });
+            }
+
+            openChat();
+        }
+
+
+
 
     // Render messages in chat window
     function renderMessages(messages) {
@@ -337,6 +363,9 @@ body {
             document.getElementById('chatWindow').classList.add('hidden');
         }
     }
+
+
+
 
 
 </script>

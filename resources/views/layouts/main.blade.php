@@ -9,6 +9,8 @@
     @include('includes.head')
     @include('includes.script')
     @include('includes.head')
+@vite(['resources/js/app.js', 'resources/css/app.css'])
+
 </head>
 
 <body class="bg-gray-100">
