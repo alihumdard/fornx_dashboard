@@ -122,8 +122,6 @@ Route::middleware(['auth'])->group(function () {
   Route::get('/invoices/users', [InvoiceController::class, 'users'])->name('invoices.users');
   Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
   Route::get('/invoices/payment/{invoice}', [InvoiceController::class, 'payment'])->name('invoices.payment');
-  // Your existing route
-  Route::get('/invoices/payment/{invoice}', [InvoiceController::class, 'payment'])->name('invoices.payment');
 
   // New PayPal routes
   Route::get('/invoices/pay-with-paypal/{invoice}', [InvoiceController::class, 'payWithPayPal'])->name('invoices.pay.paypal');
