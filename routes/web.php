@@ -48,15 +48,14 @@ Route::middleware('auth')->group(function () {
 
 
   // routes/web.php
-Route::middleware('auth')->group(function () {
-      Route::get('/chat', [ChatController::class, 'view'])->name('chat.view'); // loads Blade
+  Route::middleware('auth')->group(function () {
+    Route::get('/chat', [ChatController::class, 'view'])->name('chat.view'); // loads Blade
 
     Route::get('/chats/{type}', [ChatController::class, 'index']); // clients, users, teams
     Route::get('/chat/{id}', [ChatController::class, 'show']);
     Route::post('/chat/{id}/message', [ChatController::class, 'store']);
     Route::post('/chat/start', [ChatController::class, 'start'])->name('chat.start');
-
-});
+  });
 
 
   // Projects
@@ -110,12 +109,18 @@ Route::middleware('auth')->group(function () {
   Route::get('/invoices/information', [InvoiceController::class, 'information'])->name('invoices.information');
   Route::post('/invoices/information', [InvoiceController::class, 'store'])->name('invoices.store');
   Route::get('/invoices/client', [InvoiceController::class, 'client'])->name('invoices.client');
-  Route::get('/invoices/payment', [InvoiceController::class, 'payment'])->name('invoices.payment');
   Route::get('/invoices/users', [InvoiceController::class, 'users'])->name('invoices.users');
   Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('invoices.show');
+  Route::get('/invoices/payment/{invoice}', [InvoiceController::class, 'payment'])->name('invoices.payment');
+  // Your existing route
+  Route::get('/invoices/payment/{invoice}', [InvoiceController::class, 'payment'])->name('invoices.payment');
 
+  // New PayPal routes
+  Route::get('/invoices/pay-with-paypal/{invoice}', [InvoiceController::class, 'payWithPayPal'])->name('invoices.pay.paypal');
+  Route::get('/invoices/paypal/success/{invoice}', [InvoiceController::class, 'paypalSuccess'])->name('invoices.paypal.success');
+  Route::get('/invoices/paypal/cancel/{invoice}', [InvoiceController::class, 'paypalCancel'])->name('invoices.paypal.cancel');
 
-Route::post('/invoices/send', [InvoiceController::class, 'sendInvoice'])->name('invoices.send');
+  Route::post('/invoices/send', [InvoiceController::class, 'sendInvoice'])->name('invoices.send');
 
   // Chat Module Routes
   // Route::get('/chat', [ChatController::class, 'show'])->name('chat');
@@ -136,8 +141,8 @@ Route::post('/invoices/send', [InvoiceController::class, 'sendInvoice'])->name('
   Route::post('/time/check-in', [TimeController::class, 'processCheckIn'])->name('time.check_in');
   Route::post('/time/check-out', [TimeController::class, 'processCheckOut'])->name('time.check_out');
   Route::post('/time/leave', [TimeController::class, 'submitLeave'])->name('time.leave.submit');
-    Route::get('/leaves', [TimeController::class, 'showLeaveRequests'])->name('time.leaves');
-    Route::post('/leaves/{leave}/status', [TimeController::class, 'updateLeaveStatus'])->name('leaves.updateStatus');
+  Route::get('/leaves', [TimeController::class, 'showLeaveRequests'])->name('time.leaves');
+  Route::post('/leaves/{leave}/status', [TimeController::class, 'updateLeaveStatus'])->name('leaves.updateStatus');
 
 
 
