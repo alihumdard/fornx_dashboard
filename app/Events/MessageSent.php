@@ -55,6 +55,7 @@ class MessageSent implements ShouldBroadcast
                     'body' => $this->message->body,
                     'sender_id' => $this->message->sender_id,
                     'conversation_id' => $this->message->conversation_id,
+                    'audio_path' => $this->message->audio_path, // ✅ include audio
                     'created_at' => $this->message->created_at->toDateTimeString(),
                 ]
             ];
