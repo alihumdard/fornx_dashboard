@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\TimeController;
+use App\Http\Controllers\MeetingController;
+
 
 // Authentication Routes
 Route::get('/', [AuthController::class, 'index']);
@@ -55,8 +57,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat/{id}', [ChatController::class, 'show']);
     Route::post('/chat/{id}/message', [ChatController::class, 'store']);
     Route::post('/chat/start', [ChatController::class, 'start'])->name('chat.start');
-  });
+    Route::post('/chat/{id}/mark-read', [ChatController::class, 'markRead']);
+    Route::post('/chat/{conversation}/audio-message', [ChatController::class, 'sendAudioMessage']);
+    Route::post('/chat/{id}/document-message', [ChatController::class, 'sendDocument']);
 
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/meetings', [MeetingController::class, 'store'])->name('meetings.store');
+    Route::get('/meetings/{conversation}', [MeetingController::class, 'index'])->name('meetings.index');
+});
 
   // Projects
   Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');

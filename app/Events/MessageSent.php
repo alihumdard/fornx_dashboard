@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Message;
 
-class MessageSent
+class MessageSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public $message;
@@ -25,18 +25,41 @@ class MessageSent
     {
         $this->message = $message;
 
-    }
+        }
 
     /**
      * Get the channels the event should broadcast on.
      *
      * @return \Illuminate\Broadcasting\Channel|array
      */
-    public function broadcastOn(): Channel {
-        return new Channel('chat.' . $this->message->conversation_id);
-    }
+        public function broadcastOn()
+        {
+            \Log::info("Broadcasting MessageSent event", [
+                'conversation_id' => $this->message->conversation_id,
+                'message_id' => $this->message->id,
+                'channel' => "chat.{$this->message->conversation_id}"
+            ]);
+            
+            return new PrivateChannel("chat.{$this->message->conversation_id}");
+        }
+        public function broadcastAs()
+        {
+            return 'message.sent';
+        }
 
-    public function broadcastAs(): string {
-        return 'message.sent';
-    }
+        public function broadcastWith()
+        {
+            return [
+                'message' => [
+                    'id' => $this->message->id,
+                    'body' => $this->message->body,
+                    'sender_id' => $this->message->sender_id,
+                    'conversation_id' => $this->message->conversation_id,
+                    'audio_path' => $this->message->audio_path, // ✅ include audio
+                    'created_at' => $this->message->created_at->toDateTimeString(),
+                ]
+            ];
+        }
+
+
 }
