@@ -27,15 +27,31 @@ window.Echo = new Echo({
     broadcaster: 'pusher',
     key: import.meta.env.VITE_PUSHER_APP_KEY,
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
-    wsHost: import.meta.env.VITE_PUSHER_HOST || `ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com`,
-    wsPort: import.meta.env.VITE_PUSHER_PORT || 80,
-    wssPort: import.meta.env.VITE_PUSHER_PORT || 443,
-    forceTLS: (import.meta.env.VITE_PUSHER_SCHEME || 'https') === 'https',
-    enabledTransports: ['ws', 'wss'],
-    authEndpoint: '/broadcasting/auth',
+    forceTLS: true,
+    encrypted: true,
+    authEndpoint: 'http://127.0.0.1:8000/broadcasting/auth', // 👈 point to Laravel backend
     auth: {
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         }
-    }
+    },
+    logToConsole: true
 });
+
+
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: import.meta.env.VITE_PUSHER_APP_KEY,
+//     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
+//     wsHost: import.meta.env.VITE_PUSHER_HOST || `ws-${import.meta.env.VITE_PUSHER_APP_CLUSTER}.pusher.com`,
+//     wsPort: import.meta.env.VITE_PUSHER_PORT || 80,
+//     wssPort: import.meta.env.VITE_PUSHER_PORT || 443,
+//     forceTLS: (import.meta.env.VITE_PUSHER_SCHEME || 'https') === 'https',
+//     enabledTransports: ['ws', 'wss'],
+//     authEndpoint: '/broadcasting/auth',
+//     auth: {
+//         headers: {
+//             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+//         }
+//     }
+// });
