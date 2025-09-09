@@ -52,12 +52,27 @@
     }
 
     /* Header Styles */
-    .header {
-        margin-bottom: 28px;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-    }
+ .header {
+    margin-bottom: 28px;
+    display: table;
+    width: 100%;
+}
+.header > div {
+    display: table-cell;
+    vertical-align: top;
+}
+.logo-container {
+    width: 20%;
+}
+.contact-info {
+    width: 40%;
+    text-align: center;
+}
+.address-info {
+    width: 35%;
+    text-align: right;
+}
+
 
     @media (max-width: 768px) {
         .header {
@@ -341,9 +356,9 @@
                 <div>{{ $invoice->phone ?? '+91 00000 00000' }}</div>
             </div>
 
-            <div style="display: flex; flex-direction: column; padding-top: 10px; color: #666;">
-                <span>{{ $invoice->business_address ?? 'Business Address' }}</span>
-                <span>{{ $invoice->city ?? 'City' }}, {{ $invoice->state ?? 'State' }}, {{ $invoice->country ?? 'IN' }} {{ $invoice->zip ?? '000000' }}</span>
+            <div class="address-info">
+                <span>{{ $invoice->business_address ?? 'Business Address' }}</span><br>
+                <span>{{ $invoice->city ?? 'City' }}, {{ $invoice->state ?? 'State' }}, {{ $invoice->country ?? 'IN' }} {{ $invoice->zip ?? '000000' }}</span><br>
                 <span>TAX ID {{ $invoice->tax_id ?? '00XXX1234XX' }}</span>
             </div>
         </div>
