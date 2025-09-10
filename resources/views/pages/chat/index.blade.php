@@ -289,6 +289,7 @@ body {
 
         const tab = document.getElementById(tabId);
         tab.classList.add('active', 'bg-blue-500', 'text-white');
+
     }
 
     function loadConversations(type, autoOpenFirst = true) {
@@ -366,8 +367,20 @@ body {
                 document.getElementById(`count-${type}`).innerText = data.total_unread;
 
                 // Auto-open first conversation
-                if (autoOpenFirst && firstConversationId) {
-                    openConversation(firstConversationId, firstParticipantName);
+                // Auto-open first conversation OR first entity
+                if (autoOpenFirst) {
+                    if (firstConversationId) {
+                        // open existing conversation
+                        setTimeout(() => {
+                            openConversation(firstConversationId, firstParticipantName);
+                        }, 200);
+                    } else if (data.entities.length) {
+                        // no existing conversations → auto-start with the first entity
+                        const firstEntity = data.entities[0];
+                        setTimeout(() => {
+                            startConversation(firstEntity.id, type, firstEntity.name || "No Name");
+                        }, 200);
+                    }
                 }
             });
     }
@@ -398,13 +411,14 @@ body {
             subscribeToConversation(data.conversation.id);
 
             // reload list so new conversation appears
-            loadConversations(type);
+            loadConversations(type, false);
         });
     }
 
     function openConversation(id, name) {
         currentConversation = id;
-        document.querySelector("#chatHeaderName").innerText = name;
+        document.getElementById("chatHeaderName").innerText = name || "Unknown";
+
 
         // reset unread badge for this conversation
         const badge = document.querySelector(`#conversationList .chat-item[data-conversation-id='${id}'] .unread-badge`);
@@ -433,40 +447,40 @@ body {
 
     // Render messages in chat window
     function renderMessages(messages) {
-    let html = '';
-    messages.forEach(msg => {
-        const isMine = msg.sender_id === {{ auth()->id() }};
-        let content = msg.body ? linkify(msg.body) : "";
+        let html = '';
+        messages.forEach(msg => {
+            const isMine = msg.sender_id === {{ auth()->id() }};
+            let content = msg.body ? linkify(msg.body) : "";
 
-        if (msg.audio_path) {
-            content = `<audio controls src="/storage/${msg.audio_path}" class="mt-2"></audio>`;
-        }
+            if (msg.audio_path) {
+                content = `<audio controls src="/storage/${msg.audio_path}" class="mt-2"></audio>`;
+            }
 
-        if (msg.document_path) {
-            const fileName = msg.document_path.split('/').pop();
-            content = `
-                <a href="/storage/${msg.document_path}" target="_blank" 
-                class="text-blue-600 underline flex items-center gap-2">
-                    <i class="fas fa-file-alt"></i> ${fileName}
-                </a>`;
-        }
+            if (msg.document_path) {
+                const fileName = msg.document_path.split('/').pop();
+                content = `
+                    <a href="/storage/${msg.document_path}" target="_blank" 
+                    class="text-blue-600 underline flex items-center gap-2">
+                        <i class="fas fa-file-alt"></i> ${fileName}
+                    </a>`;
+            }
 
 
-        html += `
-            <div class="mb-4 flex ${isMine ? 'justify-end' : 'justify-start'}">
-                <div class="message-bubble ${isMine ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'} 
-                            px-4 py-2 rounded-lg shadow text-sm">
-                    ${content}
-                </div>
-            </div>`;
-    });
-    const messagesArea = document.getElementById('messagesArea');
-    messagesArea.innerHTML = html;
-    messagesArea.scrollTop = messagesArea.scrollHeight;
+            html += `
+                <div class="mb-4 flex ${isMine ? 'justify-end' : 'justify-start'}">
+                    <div class="message-bubble ${isMine ? 'bg-blue-500 text-white' : 'bg-white text-gray-800'} 
+                                px-4 py-2 rounded-lg shadow text-sm">
+                        ${content}
+                    </div>
+                </div>`;
+        });
+        const messagesArea = document.getElementById('messagesArea');
+        messagesArea.innerHTML = html;
+        messagesArea.scrollTop = messagesArea.scrollHeight;
 
-    enhanceAudioDurations();
+        enhanceAudioDurations();
 
-}
+    }
 
 
     // Append new incoming message
@@ -520,7 +534,7 @@ body {
         }).then(res => res.json())
         .then(msg => {
             // appendMessage(msg);
-            // input.value = '';
+            input.value = '';
         });
     }
 
