@@ -65,8 +65,12 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                               {{ $user->getAllPermissions()->pluck('name')->implode(', ') ?: 'No Permissions' }}
+                            @php
+                                $rolePermissions = $user->roles->flatMap(fn($role) => $role->permissions->pluck('name'))->unique();
+                            @endphp
+                            {{ $rolePermissions->implode(', ') ?: 'No Permissions' }}
                         </td>
+
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->updated_at->format('Y-m-d') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="relative inline-block text-left">
@@ -85,6 +89,10 @@
                                           <a href="{{ route('admin.users.toggleStatus',['id' => $user->id,'slug' => 'unblock']) }}"><button
                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full text-left"
                                             role="menuitem">Unblock</button> </a>
+                                             <a href="{{ route('users.editRoles', $user->id) }}">
+                                                <button class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full text-left"
+                                                    role="menuitem">Edit Roles</button>
+                                            </a>
                                     </div>
                                 </div>
                             </div>
