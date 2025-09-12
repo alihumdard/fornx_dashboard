@@ -50,7 +50,7 @@ Route::middleware('auth')->group(function () {
 
 
   // routes/web.php
-  Route::middleware('permission:manage chat')->group(function () {
+  Route::middleware('permission:Manage Chat')->group(function () {
 
     Route::get('/chat', [ChatController::class, 'view'])->name('chat.view'); // loads Blade
     Route::get('/chats/{type}', [ChatController::class, 'index']); // clients, users, teams
@@ -69,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
   // Projects
-  Route::middleware('permission:manage projects')->group(function () {
+  Route::middleware('permission:Manage Projects')->group(function () {
 
     Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
@@ -87,7 +87,7 @@ Route::middleware(['auth'])->group(function () {
   }); 
 
   // Clients
-  Route::middleware('permission:manage clients')->group(function () {
+  Route::middleware('permission:Manage Clients')->group(function () {
 
     Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
     Route::get('/clients/create', [ClientController::class, 'create'])->name('clients.add');
@@ -98,7 +98,7 @@ Route::middleware(['auth'])->group(function () {
   });
   // Teams CRUD
 
-  Route::middleware('permission:manage teams')->group(function () {
+  Route::middleware('permission:Manage Teams')->group(function () {
 
     Route::get('/teams-dashboard', [TeamController::class, 'dashboard'])->name('teams.dashboard');
     Route::get('/teams', [TeamController::class, 'index'])->name('teams.index');
@@ -108,7 +108,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/teams/{team}', [TeamController::class, 'destroy'])->name('teams.destroy');
   });
 
-   Route::middleware('permission:manage users')->group(function () {
+   Route::middleware('permission:Manage Users')->group(function () {
         Route::get('/users/all', [UserController::class, 'allUsers'])->name('users.all');
         Route::get('/users/add', [UserController::class, 'create'])->name('users.add');
         Route::post('/users/add', [UserController::class, 'store'])->name('users.store');
@@ -120,17 +120,17 @@ Route::middleware(['auth'])->group(function () {
         Route::put('users/{user}/roles', [UserController::class, 'updateRoles'])->name('users.updateRoles');
     });
 
-    Route::middleware('permission:manage roles')->group(function () {
+    Route::middleware('permission:Manage Roles')->group(function () {
         Route::resource('roles', RoleController::class);
     });
 
-    Route::middleware('permission:manage permissions')->group(function () {
+    Route::middleware('permission:Manage Permissions')->group(function () {
         Route::resource('permissions', PermissionController::class);
     });
 
 
   // Transactions
-  Route::middleware('permission:manage transactions')->group(function () {
+  Route::middleware('permission:Manage Transactions')->group(function () {
 
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::get('/transactions/create', [TransactionController::class, 'create'])->name('transactions.create');
@@ -141,7 +141,7 @@ Route::middleware(['auth'])->group(function () {
   });
   // Invoice Routes
 
-  Route::middleware('permission:manage invoices')->group(function () {
+  Route::middleware('permission:Manage Invoices')->group(function () {
   
     Route::get('/invoices/template', [InvoiceController::class, 'template'])->name('invoices.template');
     Route::get('/invoices/information', [InvoiceController::class, 'information'])->name('invoices.information');
@@ -165,7 +165,7 @@ Route::middleware(['auth'])->group(function () {
 
 
   // Time tracking dashboard
-  Route::middleware('permission:manage time and attendance')->group(function () {
+  Route::middleware('permission:Manage Time and Attendance')->group(function () {
 
     Route::get('/time', [TimeController::class, 'showTimeDashboard'])->name('time.dashboard');
     Route::post('/time/check-in', [TimeController::class, 'processCheckIn'])->name('time.check_in');
