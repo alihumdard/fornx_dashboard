@@ -33,8 +33,6 @@ class UserController extends Controller
     }
 
 
-
-
     public function create()
     {
         $roles = Role::all();
@@ -190,4 +188,25 @@ class UserController extends Controller
 
         return redirect()->route('users.profile', $user->id)->with('success', 'Profile updated successfully.');
     }
+
+    public function editRoles(User $user)
+    {
+        $roles = Role::all();
+        $userRoles = $user->roles->pluck('name')->toArray();
+        return view('pages.users.edit_roles', compact('user', 'roles', 'userRoles'));
+    }
+
+    // Update the user's roles
+    public function updateRoles(Request $request, User $user)
+    {
+        $request->validate([
+            'roles' => 'required|array',
+            'roles.*' => 'exists:roles,name',
+        ]);
+
+        $user->syncRoles($request->roles);
+
+        return redirect()->route('users.all')->with('success', 'Roles updated successfully.');
+    }
+
 }

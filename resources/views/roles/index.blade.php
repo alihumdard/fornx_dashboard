@@ -19,6 +19,7 @@
             <tr>
                 <th class="border px-3 py-2">ID</th>
                 <th class="border px-3 py-2">Name</th>
+                <th class="border px-3 py-2">Permissions</th>
                 <th class="border px-3 py-2">Actions</th>
             </tr>
         </thead>
@@ -26,7 +27,20 @@
             @foreach($roles as $role)
                 <tr>
                     <td class="border px-3 py-2">{{ $role->id }}</td>
-                    <td class="border px-3 py-2">{{ $role->name }}</td>
+                    <td class="border px-3 py-2 font-semibold">{{ $role->name }}</td>
+                    <td class="border px-3 py-2">
+                        @if($role->permissions->isNotEmpty())
+                            <div class="flex flex-wrap gap-1">
+                                @foreach($role->permissions as $permission)
+                                    <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs">
+                                        {{ $permission->name }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @else
+                            <span class="text-gray-500 italic">No permissions</span>
+                        @endif
+                    </td>
                     <td class="border px-3 py-2 flex gap-2">
                         <a href="{{ route('roles.edit', $role->id) }}" class="bg-yellow-500 text-white px-3 py-1 rounded">Edit</a>
                         <form action="{{ route('roles.destroy', $role->id) }}" method="POST" onsubmit="return confirm('Delete this role?')">

@@ -35,17 +35,50 @@
         </div>
 
         <!-- Profile -->
-        <div class="flex items-center gap-2">
-            <img src="https://via.placeholder.com/40" class="rounded-full w-8 h-8 lg:w-10 lg:h-10" alt="">
-            <div class="hidden sm:block text-left">
-                <p class="font-semibold text-sm">Alex meian</p>
-                <p class="text-xs text-gray-500">Admin</p>
+        <div class="relative">
+            <button id="profileBtn" class="flex items-center gap-2 focus:outline-none">
+            <img src="{{ asset(Auth::user()->user_pic) ?? asset('assets/images/image.png') }}" alt="Profile"
+                    class="w-14 h-14 rounded-lg object-cover">                <div class="hidden sm:block text-left">
+                    <p class="font-semibold text-sm">{{ Auth::user()->name }}</p>
+                    <p class="text-xs text-gray-500">{{ ucfirst(Auth::user()->roles->first()->name ?? 'User') }}</p>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                     class="w-4 h-4 text-gray-400" fill="none" 
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            <!-- Dropdown -->
+            <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                <div class="py-1">
+                    <a href="{{ route('users.myprofile') }}" 
+                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Logout
+                        </button>
+                    </form>
+                </div>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" 
-                 class="w-4 h-4 text-gray-400" fill="none" 
-                 viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7" />
-            </svg>
         </div>
+
     </div>
 </div>
+
+@push('scripts')
+<script>
+    const profileBtn = document.getElementById('profileBtn');
+    const profileDropdown = document.getElementById('profileDropdown');
+
+    profileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', () => {
+        profileDropdown.classList.add('hidden');
+    });
+</script>
+@endpush
